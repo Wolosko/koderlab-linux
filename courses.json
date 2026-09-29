@@ -85,7 +85,7 @@
     "piktomir": {
       "name": "ПиктоМир",
       "installer": "archive",
-      "file": "piktomir/piktomir-linux.tar.gz",
+      "file": "piktomir/piktomir-linux.AppImage",
       "match_keywords": [
         "piktomir",
         "pictomir",
@@ -119,7 +119,7 @@
     "tlauncher": {
       "name": "TLauncher",
       "installer": "jar",
-      "file": "tlauncher/TLauncher_v17.zip",
+      "file": "tlauncher/TLauncher_v18.zip",
       "match_keywords": [
         "tlauncher"
       ],
