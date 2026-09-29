@@ -33,6 +33,7 @@ import subprocess
 import sys
 import platform
 import tarfile
+import tempfile
 import threading
 import time
 import urllib.error
@@ -56,7 +57,7 @@ from PyQt5.QtWidgets import (  # noqa: E402
     QPushButton, QLabel, QTreeWidget, QTreeWidgetItem, QProgressBar,
     QTextEdit, QMessageBox, QFrame, QInputDialog, QLineEdit, QFileDialog,
     QDialog, QListWidget, QListWidgetItem, QDialogButtonBox, QCheckBox,
-    QScrollArea, QGridLayout, QToolButton,
+    QScrollArea, QGridLayout, QToolButton, QProgressDialog,
 )
 
 # ---------------------------------------------------------------------------
@@ -9061,9 +9062,126 @@ class MainWindow(QMainWindow):
         QMessageBox.information(self, "Помощь", text)
 
 
+# ---------------------------------------------------------------------------
+# Автообновление
+# ---------------------------------------------------------------------------
+
+# Репозиторий приватный: доступ только по токену с правом «только чтение»
+# на этот единственный репозиторий (создаётся на github.com/settings/tokens,
+# Fine-grained token → Only select repositories → koderlab-linux →
+# Repository permissions → Contents: Read-only). Токен кладётся в файл
+# update_token.txt рядом с main.py — в git этот файл не попадает
+# (см. .gitignore), он существует только на установленных копиях.
+UPDATE_REPO = "Wolosko/koderlab-linux"
+UPDATE_TOKEN_FILE = os.path.join(BASE_DIR, "update_token.txt")
+# Что обновляется из репозитория. installers/ (файлы программ) и то, что
+# создаётся на месте (ярлыки, settings.json, markers) — не трогаем, это
+# не код, а данные конкретного компьютера.
+UPDATE_TRACKED = ["main.py", "courses.json", "start.sh",
+                  "build_flatpak_bundles.sh", "ЧИТАЙ.txt", "icons"]
+
+
+def _update_token():
+    try:
+        with open(UPDATE_TOKEN_FILE, encoding="utf-8") as f:
+            return f.read().strip() or None
+    except OSError:
+        return None
+
+
+def check_for_update():
+    """Сверяет версию с GitHub. Возвращает (есть_ли_новее, версия).
+
+    Не ломает запуск, если сети/токена нет или GitHub недоступен — тогда
+    просто (False, None), и программа работает как есть."""
+    token = _update_token()
+    if not token:
+        return False, None
+    try:
+        req = urllib.request.Request(
+            f"https://api.github.com/repos/{UPDATE_REPO}/contents/courses.json",
+            headers={"Authorization": f"Bearer {token}",
+                     "Accept": "application/vnd.github.raw"})
+        with urllib.request.urlopen(req, timeout=8) as r:
+            remote = json.loads(r.read().decode("utf-8"))
+    except (OSError, urllib.error.URLError, ValueError, UnicodeDecodeError):
+        return False, None
+    remote_version = remote.get("version")
+    if remote_version and str(remote_version) != KODERLAB_VERSION:
+        return True, str(remote_version)
+    return False, None
+
+
+def apply_update():
+    """Скачивает свежий снимок репозитория (архив целиком, без git) и
+    подменяет файлы программы. Возвращает (успех, сообщение об ошибке)."""
+    token = _update_token()
+    if not token:
+        return False, "нет файла update_token.txt"
+    tmp_dir = tempfile.mkdtemp(prefix="koderlab_update_")
+    archive = os.path.join(tmp_dir, "update.tar.gz")
+    try:
+        req = urllib.request.Request(
+            f"https://api.github.com/repos/{UPDATE_REPO}/tarball/main",
+            headers={"Authorization": f"Bearer {token}"})
+        with urllib.request.urlopen(req, timeout=120) as r, open(archive, "wb") as f:
+            shutil.copyfileobj(r, f)
+        with tarfile.open(archive) as tf:
+            tf.extractall(tmp_dir)
+        # GitHub кладёт содержимое в одну вложенную папку вида
+        # владелец-репо-хэш — берём её.
+        roots = [d for d in os.listdir(tmp_dir)
+                if os.path.isdir(os.path.join(tmp_dir, d))]
+        if not roots:
+            return False, "архив обновления пуст"
+        src_root = os.path.join(tmp_dir, roots[0])
+        for name in UPDATE_TRACKED:
+            src = os.path.join(src_root, name)
+            if not os.path.exists(src):
+                continue
+            dest = os.path.join(BASE_DIR, name)
+            if os.path.isdir(src):
+                shutil.rmtree(dest, ignore_errors=True)
+                shutil.copytree(src, dest)
+            else:
+                shutil.copy2(src, dest)
+        return True, ""
+    except (OSError, tarfile.TarError, urllib.error.URLError) as e:
+        return False, str(e)
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+
+
 def main():
     ensure_dirs()
     app = QApplication(sys.argv)
+
+    # Автообновление: если есть токен и в репозитории версия отличается —
+    # ставим обязательно, до открытия окна. Нет сети/токена — работаем
+    # с тем, что есть, никого не блокируем.
+    has_update, new_version = check_for_update()
+    if has_update:
+        dlg = QProgressDialog(
+            f"Доступно обновление {new_version} (сейчас {KODERLAB_VERSION}). "
+            "Устанавливаю…", None, 0, 0)
+        dlg.setWindowTitle("Обновление KoderLab")
+        dlg.setWindowModality(Qt.ApplicationModal)
+        dlg.setMinimumDuration(0)
+        dlg.setCancelButton(None)
+        dlg.show()
+        app.processEvents()
+        ok, err = apply_update()
+        dlg.close()
+        if ok:
+            QMessageBox.information(
+                None, "Обновление установлено",
+                f"Установлена версия {new_version}. Сейчас программа перезапустится.")
+            os.execv(sys.executable, [sys.executable, os.path.abspath(__file__)] + sys.argv[1:])
+        else:
+            QMessageBox.warning(
+                None, "Не удалось обновить",
+                f"Не получилось установить обновление {new_version}: {err}\n\n"
+                "Программа запустится с текущей версией.")
 
     # Проверка ключа доступа ВЫКЛЮЧЕНА по умолчанию.
     # Включается только явно: KODERLAB_LICENSE=1 ./start.sh
