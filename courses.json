@@ -1,0 +1,885 @@
+{
+  "_comment": "Linux-версия, все 9 курсов (1,2,3,4,5,6,7,11,13). Номера 8,9,10,12 в исходном списке отсутствовали. Поле packages может быть списком или словарём по дистрибутиву.",
+  "koderlab_bundle": [
+    "scratch",
+    "tuxpaint",
+    "gcompris",
+    "blender",
+    "vscode",
+    "tlauncher"
+  ],
+  "apps": {
+    "scratch": {
+      "name": "Scratch",
+      "installer": "flatpak",
+      "flatpak": "edu.mit.Scratch",
+      "flatpak_search": "Scratch",
+      "flatpak_remote": "flathub",
+      "flatpak_repo_urls": [
+        "https://dl.flathub.org/repo/flathub.flatpakrepo",
+        "https://diallog.pro/downloads/flathub.flatpakrepo"
+      ],
+      "packages": {
+        "rosa": [
+          "scratch"
+        ],
+        "alt": [
+          "scratch"
+        ],
+        "deb": [
+          "scratch"
+        ],
+        "default": [
+          "scratch"
+        ]
+      },
+      "file": "scratch/Scratch-Desktop.AppImage",
+      "match_keywords": [
+        "scratch-desktop",
+        "scratchdesktop",
+        "scratch3"
+      ],
+      "check": {
+        "type": "flatpak",
+        "ref": "edu.mit.Scratch"
+      },
+      "note": "Ставится из Flathub — это отдельная, новая версия. Уже установленный в системе старый Scratch она НЕ удаляет и не заменяет: flatpak-версия живёт сама по себе, в меню появится второй значок. Старую версию при желании удалите вручную (sudo dnf remove scratch), но это не обязательно. Проверка «установлено» смотрит именно на flatpak-версию, поэтому старая на статус не влияет. Идентификатор указан edu.mit.Scratch — если в репозитории он другой, программа найдёт нужный поиском и напишет в журнале. Если Flathub недоступен, включается запасной путь: пакет дистрибутива, затем AppImage."
+    },
+    "scratch_jr": {
+      "name": "ScratchJr",
+      "installer": "appimage",
+      "file": "scratch_jr/ScratchJr-Desktop.AppImage",
+      "match_keywords": [
+        "scratchjr"
+      ],
+      "note": "ВАЖНО: официальный ScratchJr от MIT существует только для планшетов (iPad/Android) — настольных сборок нет ни под Windows, ни под Linux. В Windows-версии подставлялся неофициальный Electron-порт (github.com/jfo8000/ScratchJr-Desktop); если найдёте его Linux-сборку, положите AppImage сюда. Надёжный вариант для 5–7 лет — школьные планшеты с официальным приложением."
+    },
+    "gcompris": {
+      "name": "GCompris",
+      "installer": "flatpak",
+      "flatpak": "org.kde.gcompris",
+      "flatpak_search": "GCompris",
+      "flatpak_repo_urls": [
+        "https://dl.flathub.org/repo/flathub.flatpakrepo",
+        "https://diallog.pro/downloads/flathub.flatpakrepo"
+      ],
+      "packages": {
+        "default": [
+          "gcompris-qt"
+        ],
+        "deb": [
+          "gcompris-qt"
+        ]
+      },
+      "file": "gcompris/gcompris-qt-linux.sh",
+      "match_keywords": [
+        "gcompris"
+      ],
+      "script_needs_root": false,
+      "check": {
+        "type": "flatpak",
+        "ref": "org.kde.gcompris"
+      },
+      "note": "Набор развивающих активностей для малышей. Ставится из Flathub (org.kde.gcompris — официальная сборка KDE). Если Flathub недоступен, автоматически включается запасной путь: пакет gcompris-qt из репозитория дистрибутива, а затем офлайн-установщик gcompris-qt-*.sh с официального сайта из installers/gcompris/."
+    },
+    "piktomir": {
+      "name": "ПиктоМир",
+      "installer": "archive",
+      "file": "piktomir/piktomir-linux.tar.gz",
+      "match_keywords": [
+        "piktomir",
+        "pictomir",
+        "пиктомир"
+      ],
+      "run_bin": "piktomir",
+      "note": "У ПиктоМира (НИИСИ РАН) есть сборки под Linux — обычно tar.gz, иногда .rpm/.deb. Положите скачанный файл в installers/piktomir/: тип определится по расширению. Если внутри архива файл запуска называется иначе, впишите его имя в поле run_bin."
+    },
+    "tuxpaint": {
+      "name": "Tux Paint",
+      "installer": "repo",
+      "packages": {
+        "default": [
+          "tuxpaint",
+          "tuxpaint-stamps"
+        ],
+        "deb": [
+          "tuxpaint",
+          "tuxpaint-stamps-default"
+        ]
+      },
+      "match_keywords": [
+        "tuxpaint"
+      ],
+      "check": {
+        "type": "command",
+        "name": "tuxpaint"
+      },
+      "note": "Рисовалка для детей 3–12 лет, родная для Linux и есть в репозиториях всех целевых дистрибутивов. Вторым пакетом ставятся штампы-наклейки. Если пакет со штампами называется иначе, поправьте packages."
+    },
+    "tlauncher": {
+      "name": "TLauncher",
+      "installer": "jar",
+      "file": "tlauncher/TLauncher_v17.zip",
+      "match_keywords": [
+        "tlauncher"
+      ],
+      "note": "Кладите в installers/tlauncher/ либо ваш архив TLauncher_v17.zip целиком, либо просто TLauncher.jar.\n\nJAVA ПРОВЕРЯЕТСЯ ОБЯЗАТЕЛЬНО — и при установке, и перед каждым запуском. Нужна не любая Java, а версии 17 или новее и с поддержкой окон. На Java 11 лаунчер не запускается вовсе, а варианты *-headless дают ошибку UnsatisfiedLinkError ... libawt_xawt.so. Если подходящей нет, установщик ставит её сам, начиная с java-17-openjdk (11-я исключена) (на ROSA — dnf install java-17-openjdk, на Альт/М ОС — apt-get install java-17-openjdk, на Astra/Debian — openjdk-17-jre). Установка без рабочей Java не считается успешной, а запуск не начинается вовсе — вместо непонятной ошибки в журнале сразу написано, что делать.\n\nКнопка ⚙: «Java: проверить» показывает все установленные Java и умеет ли каждая открывать окна; «Java: установить/починить» ставит подходящую, перебирая пакеты; «Папка лаунчера» открывает ~/.tlauncher с логами.\n\nРазделение, которое экономит время: системная Java нужна, чтобы запустился САМ лаунчер. Для игры TLauncher скачивает отдельную Java в ~/.tlauncher/starter/jre_default/ и системную не использует — её версия на Minecraft не влияет.\n\nЗапуск идёт от обычного пользователя, как в вашей инструкции: java -jar TLauncher.jar. Под root лаунчер запускать нельзя.",
+      "requires": {
+        "java": true,
+        "java_gui": true
+      },
+      "tools": [
+        {
+          "name": "Java: проверить",
+          "cmd": [
+            "sh",
+            "-c",
+            "echo \"=== Java для Minecraft (нужна версия 17 или новее, с поддержкой окон) ===\"\nFOUND=0; GOOD=0; SEEN=\"\"\nfor J in $(command -v java 2>/dev/null) /usr/lib/jvm/*/bin/java /usr/lib64/jvm/*/bin/java /opt/*/bin/java; do\n  [ -x \"$J\" ] || continue\n  R=$(readlink -f \"$J\")\n  case \" $SEEN \" in *\" $R \"*) continue;; esac\n  SEEN=\"$SEEN $R\"\n  FOUND=$((FOUND+1))\n  V=$(\"$J\" -version 2>&1 | head -1)\n  N=$(echo \"$V\" | sed -n 's/.*version \"\\([0-9][0-9]*\\).*/\\1/p')\n  [ \"$N\" = \"1\" ] && N=$(echo \"$V\" | sed -n 's/.*version \"1\\.\\([0-9][0-9]*\\).*/\\1/p')\n  H=$(dirname \"$(dirname \"$R\")\")\n  GUI=no\n  find \"$H/lib\" -name 'libawt_xawt.so' 2>/dev/null | grep -q . && GUI=yes\n  echo \"\"\n  echo \"  $J\"\n  echo \"    $V\"\n  if [ \"$GUI\" = no ]; then\n    echo \"    ПЛОХО: headless, без графики — лаунчер не откроет окно\"\n  elif [ -n \"$N\" ] && [ \"$N\" -lt 17 ]; then\n    echo \"    ПЛОХО: версия $N слишком старая — на 11-й лаунчер не запускается\"\n  else\n    echo \"    OK  подходит (версия $N, окна есть)\"; GOOD=$((GOOD+1))\n  fi\ndone\n\necho \"\"\nif [ \"$FOUND\" = 0 ]; then\n  echo \"ИТОГ: Java не найдена. Нажмите «Java: установить/починить».\"\nelif [ \"$GOOD\" = 0 ]; then\n  echo \"ИТОГ: подходящей Java нет — нужна версия 17+ с поддержкой окон.\"\n  echo \"      Нажмите «Java: установить/починить» или выполните:\"\n  echo \"      sudo dnf install java-17-openjdk\"\nelse\n  echo \"ИТОГ: подходящая Java есть ($GOOD шт.) — лаунчер должен запускаться.\"\nfi\n\necho \"\"\necho \"JAVA_HOME: ${JAVA_HOME:-не задан (это нормально)}\"\necho \"\"\necho \"=== Java, которую TLauncher скачал себе сам (для самой игры) ===\"\nls -d \"$HOME\"/.tlauncher/starter/jre_default/*/ 2>/dev/null \\\n  || echo \"  пока нет — появится после первого запуска лаунчера\"\necho \"\"\necho \"Примечание: системная Java нужна, чтобы запустился САМ лаунчер.\"\necho \"Для Minecraft TLauncher скачивает отдельную Java и системную не использует.\""
+          ],
+          "conflicts_with_running": false,
+          "hint": "Показывает все установленные Java: версию и умеет ли каждая открывать окна. Подходит только версия 17+ с графикой."
+        },
+        {
+          "name": "Java: установить/починить",
+          "cmd": [
+            "sh",
+            "-c",
+            "if [ \"$(id -u)\" -ne 0 ]; then SU=\"pkexec\"; else SU=\"\"; fi\necho \"Определяю систему…\"\nif command -v dnf >/dev/null 2>&1; then\n  PKGS=\"java-17-openjdk java-17-openjdk-devel java-21-openjdk\"\n  INST=\"dnf install -y\"\nelif command -v urpmi >/dev/null 2>&1; then\n  PKGS=\"java-17-openjdk java-21-openjdk\"\n  INST=\"urpmi --auto\"\nelif command -v apt-get >/dev/null 2>&1 && command -v rpm >/dev/null 2>&1; then\n  PKGS=\"java-17-openjdk java-21-openjdk\"\n  INST=\"apt-get install -y\"\nelif command -v apt-get >/dev/null 2>&1; then\n  PKGS=\"openjdk-17-jre openjdk-17-jdk openjdk-21-jre default-jre\"\n  INST=\"apt-get install -y\"\nelse\n  echo \"Менеджер пакетов не определён — поставьте Java вручную.\"; exit 1\nfi\n\nfor P in $PKGS; do\n  echo \"\"\n  echo \"--- пробую $P ---\"\n  if $SU $INST $P; then\n    for J in $(command -v java) /usr/lib/jvm/*/bin/java /usr/lib64/jvm/*/bin/java; do\n      [ -x \"$J\" ] || continue\n      H=$(dirname \"$(dirname \"$(readlink -f \"$J\")\")\")\n      N=$(\"$J\" -version 2>&1 | head -1 | sed -n 's/.*version \"\\([0-9][0-9]*\\).*/\\1/p')\n      if find \"$H/lib\" -name 'libawt_xawt.so' 2>/dev/null | grep -q . \\\n         && [ -n \"$N\" ] && [ \"$N\" -ge 17 ]; then\n        echo \"\"\n        echo \"ГОТОВО: установлена подходящая Java (версия $N, с окнами): $J\"\n        \"$J\" -version 2>&1 | head -1\n        exit 0\n      fi\n    done\n    echo \"пакет встал, но подходящей Java (17+, с окнами) всё ещё нет — пробую следующий\"\n  else\n    echo \"пакет $P поставить не удалось — пробую следующий\"\n  fi\ndone\necho \"\"\necho \"Не удалось. Поставьте вручную и повторите проверку:\"\necho \"  ROSA:            sudo dnf install java-11-openjdk\"\necho \"  Альт / М ОС:     sudo apt-get install java-17-openjdk\"\necho \"  Astra / Debian:  sudo apt-get install openjdk-17-jre\"\necho \"ВАЖНО: пакеты -headless не подходят, и Java 11 тоже — нужна 17 или новее.\""
+          ],
+          "conflicts_with_running": true,
+          "hint": "Ставит Java 17 или новее с поддержкой окон, перебирая пакеты под ваш дистрибутив. Java 11 не подходит — лаунчер на ней не стартует. Потребуется пароль администратора."
+        },
+        {
+          "name": "Папка лаунчера (.tlauncher)",
+          "cmd": [
+            "xdg-open",
+            "~/.tlauncher"
+          ],
+          "conflicts_with_running": false,
+          "hint": "Логи и настройки TLauncher. Логи запуска — в подпапке logs."
+        }
+      ]
+    },
+    "blockbench": {
+      "name": "Blockbench",
+      "installer": "flatpak",
+      "flatpak": "net.blockbench.Blockbench",
+      "flatpak_search": "Blockbench",
+      "flatpak_remote": "flathub",
+      "flatpak_repo_urls": [
+        "https://dl.flathub.org/repo/flathub.flatpakrepo",
+        "https://diallog.pro/downloads/flathub.flatpakrepo"
+      ],
+      "file": "blockbench/Blockbench.AppImage",
+      "github": "JannisX11/blockbench",
+      "match_keywords": [
+        "blockbench"
+      ],
+      "check": {
+        "type": "flatpak",
+        "ref": "net.blockbench.Blockbench"
+      },
+      "note": "3D-редактор моделей для Minecraft. Ставится из Flathub; идентификатор указан net.blockbench.Blockbench — если он изменился, программа подберёт его поиском и напишет в журнале. Запасной путь при недоступном Flathub: файл из installers/blockbench/, а если его нет — автоматическая загрузка последней версии с GitHub (выберется .rpm, .deb или AppImage под вашу систему). Если flatpak не сработал, а AppImage в папке есть — установщик молча перейдёт на него, как и произошло у вас: программа установилась, просто другим путём."
+    },
+    "phet_circuit": {
+      "name": "PhET: Электрические цепи (Circuit Construction Kit)",
+      "installer": "web",
+      "url": "https://sverh-zadacha.ucoz.ru/Virtual_lab/Phet/8-10-tok.htm",
+      "file": "phet_circuit/Phet.html",
+      "match_keywords": [
+        "phet"
+      ],
+      "note": "Ярлык на симулятор «Электрическая цепь» на русском языке (сборник Н. В. Смирнова, sverh-zadacha.ucoz.ru). Если положить офлайн-копию в installers/phet_circuit/ (любой .html), ярлык будет открывать её, а не сайт — в классе без интернета это надёжнее. Чтобы всегда открывался сайт, добавьте в описание программы поле \"prefer\": \"url\"."
+    },
+    "phet_collection": {
+      "name": "PhET: сборник симуляторов по физике (рус.)",
+      "installer": "web",
+      "url": "https://sverh-zadacha.ucoz.ru/index/0-102",
+      "prefer": "url",
+      "match_keywords": [
+        "phetsbornik",
+        "phetcollection"
+      ],
+      "note": "Страница со всей коллекцией PhET на русском языке: механика, давление, МКТ и термодинамика, электростатика, ток, магнетизм, колебания и волны, оптика, атом и ядро. Ко многим симуляторам есть русские инструкции. Симуляторы на HTML5 открываются в любом браузере; помеченные (Java) и (Flash) на современных системах чаще всего уже не запускаются — берите HTML5-версии. На той же странице есть ссылка на офлайн-сборник всех симуляторов, но он выпущен только под Windows, для Linux пользуйтесь онлайн-версиями или сохраняйте нужные страницы локально."
+    },
+    "kodu": {
+      "name": "Kodu Game Lab",
+      "installer": "wine",
+      "file": "kodu/KoduSetup.exe",
+      "match_keywords": [
+        "kodu"
+      ],
+      "wine_arch": "win64",
+      "wine_tricks": [
+        "dotnet48",
+        "d3dx9"
+      ],
+      "wine_run": "Program Files/Microsoft Research/Kodu Game Lab/Boku.exe",
+      "alternative": "Scratch, GDevelop или Godot — если Wine не заработает",
+      "note": "Нативной Linux-версии нет. Установка идёт по рецепту из ветки разработчиков Wine (forum.winehq.org/viewtopic.php?t=38495), где автор исправлений описал порядок, при котором Kodu работает «из коробки» начиная с wine-9.2:\n1) Wine версии 9.2 — именно в ней разработчики исправили ошибки, из-за которых Kodu падала. Установщик сам проверяет, есть ли такая сборка, и при отсутствии скачивает её (Kron4ek/Wine-Builds) и закрепляет только за Kodu. Окружение 32-битное (win32), версия Windows win7;\n2) winetricks ставит ТОЛЬКО dotnet48 (перед этим убирается встроенный Mono — иначе программа цепляется за него и падает);\n3) затем НАПРЯМУЮ ставится xnafx40_redist.msi через msiexec — не через winetricks. Это важно: winetricks тянет этот файл из веб-архива, который обрывает загрузку, а прямая установка ещё и избавляет от ручного копирования XnaNative.dll, о котором пишет автор ветки;\n4) и только потом запускается установщик самой Kodu;\n5) сразу после установки программа проверяется запуском. Если падает, установщик сам перебирает другие сборки Wine и при необходимости скачивает версии постарше (10.0, 9.2, 9.0, 8.0), закрепляя рабочую только за Kodu.\n\nФАЙЛЫ: в installers/kodu/ нужен KoduSetup.exe. Файл xnafx40_redist.msi (7 054 336 байт) установщик скачает сам, но надёжнее положить его рядом — тогда установка не зависит от доступности серверов Microsoft и веб-архива, и файл уедет на все ПК при раздаче по сети.\n\nЕсли Kodu всё же не запустится: ⚙ → «Kodu: что установлено в окружении» покажет, что реально стоит; ⚙ → «Kodu: режим winxp» иногда помогает; ⚙ → «🧪 Подобрать рабочую версию Wine» переберёт сборки вручную. Запуск идёт с локалью C.UTF-8: русская локаль ломает часть программ на .NET под Wine, но кодировка UTF-8 сохраняется, чтобы не поломать пути с кириллицей.\n\nАРТЕФАКТЫ ГРАФИКИ: Kodu рисует через DirectX 9, который Wine переводит либо в OpenGL, либо в Vulkan (DXVK). На встроенной графике Intel с Mesa это частая причина артефактов. Кнопка ⚙ → «Kodu: исправить артефакты графики» прогоняет шесть вариантов вывода по 40 секунд каждый — смотрите, где картинка чистая, и пропишите соответствующие переменные в поле wine_env_extra. Если чистой картинки нет ни в одном варианте, помогает снизить нагрузку: ⚙ → «Настройки Kodu» → отключить тени, сглаживание и отражения, поставитьнизкое разрешение и оконный режим.\n\nКомпонент d3dx9 добавлен к установке: XNA рисует через DirectX 9, и без родных библиотек Microsoft Wine подставляет свои, что и даёт артефакты. Компонент помечен необязательным — если не установится, установка Kodu не прервётся.\n\nГРАФИКА: по умолчанию включена программная отрисовка (LIBGL_ALWAYS_SOFTWARE=1) — на практике только она даёт чистую картинку без артефактов. Она медленнее аппаратной, но Kodu — не требовательная игра, и на школьных ПК этого хватает. Если хотите попробовать аппаратное ускорение (быстрее, но возможны артефакты), уберите LIBGL_ALWAYS_SOFTWARE из поля wine_env_extra или переберите варианты кнопкой ⚙ → «Kodu: исправить артефакты графики».\nОтдельно: артефактам способствует отсутствие 32-битной библиотеки libXcomposite — в логе это видно как «XComposite is not available, using GLXPixmap hack». Установщик теперь ставит её вместе с остальными 32-битными библиотеками.",
+      "wine_winver": "win7",
+      "wine_min_version": "9.2",
+      "wine_version_reason": "Ошибки Wine, из-за которых Kodu падала с NullReferenceException, исправлены в wine-9.2 (forum.winehq.org/viewtopic.php?t=38495). На более старом Wine нужны патчи или ручное копирование XnaNative.dll.",
+      "tools": [
+        {
+          "name": "🧪 Подобрать рабочую версию Wine",
+          "action": "wine_trial",
+          "conflicts_with_running": true,
+          "hint": "Запускает Kodu в каждой доступной сборке Wine и находит ту, где она не падает. Можно сразу скачать версию постарше. Найденная сборка закрепляется только за Kodu."
+        },
+        {
+          "name": "↩ Вернуть настройки, при которых работало",
+          "action": "wine_restore",
+          "conflicts_with_running": true,
+          "hint": "Возвращает сборку Wine и режим графики, при которых программа в последний раз успешно запускалась. Пригодится, если после подбора вариантов стало хуже."
+        },
+        {
+          "name": "🍷 Открыть настройки Wine для Kodu",
+          "action": "wine_settings",
+          "conflicts_with_running": false,
+          "hint": "То же окно, что в разделе «Администрирование», но сразу с выбранной Kodu: компоненты, версия Windows, сброс окружения, диагностика."
+        },
+        {
+          "name": "Kodu: исправить артефакты графики",
+          "cmd": [
+            "sh",
+            "-c",
+            "W=$(ls -d \"$HOME\"/.local/share/KoderLab/wine-builds/*/*/bin/wine 2>/dev/null | head -1); [ -x \"$W\" ] || W=$(command -v wine)\nP=\"$HOME/.local/share/KoderLab/wine/kodu\"\nB=\"$P/drive_c/Program Files/Microsoft Research/Kodu Game Lab/Boku.exe\"\n[ -f \"$B\" ] || B=\"$P/drive_c/Program Files (x86)/Microsoft Research/Kodu Game Lab/Boku.exe\"\n[ -f \"$B\" ] || { echo \"Kodu не установлена\"; exit 1; }\n\necho \"Артефакты в Kodu — это способ вывода графики: XNA рисует через DirectX 9,\"\necho \"а Wine переводит его либо в OpenGL, либо в Vulkan (DXVK).\"\necho \"Сейчас по очереди запущу варианты по 40 секунд. Смотрите, где картинка чистая,\"\necho \"и запомните НОМЕР.\"\necho \"\"\n\ntry() {\n  N=\"$1\"; DESC=\"$2\"; shift 2\n  echo \"--- вариант $N: $DESC ---\"\n  WINEPREFIX=\"$P\" WINE=\"$W\" WINE64=\"$W\" LC_ALL=C.UTF-8 env \"$@\" \"$W\" \"$B\" &\n  PID=$!\n  sleep 40\n  kill $PID 2>/dev/null\n  WINEPREFIX=\"$P\" \"$(dirname \"$W\")/wineserver\" -k 2>/dev/null\n  sleep 3\n  echo \"\"\n}\n\ntry 1 \"как сейчас (ничего не меняем)\"\ntry 2 \"DirectX через OpenGL вместо Vulkan\" WINEDLLOVERRIDES=\"dxgi,d3d11,d3d10core=b\"\ntry 3 \"без ускорения, программная отрисовка\" LIBGL_ALWAYS_SOFTWARE=1\ntry 4 \"ограничить версию OpenGL\" MESA_GL_VERSION_OVERRIDE=3.3COMPAT MESA_GLSL_VERSION_OVERRIDE=330\ntry 5 \"старый драйвер Intel (i965)\" MESA_LOADER_DRIVER_OVERRIDE=i965\ntry 6 \"без сглаживания и с одним потоком отрисовки\" __GL_SYNC_TO_VBLANK=0 mesa_glthread=false\n\necho \"Если чистая картинка была, например, в варианте 3 — впишите его переменные\"\necho \"в courses.json, программа kodu, поле wine_env_extra:\"\necho '   \"wine_env_extra\": { \"LC_ALL\": \"C.UTF-8\", \"LIBGL_ALWAYS_SOFTWARE\": \"1\" }'\necho \"\"\necho \"Если артефакты везде — уменьшите нагрузку: ⚙ → «Настройки Kodu»,\"\necho \"отключите тени, сглаживание и отражения, поставьте оконный режим.\"\n"
+          ],
+          "conflicts_with_running": true,
+          "hint": "Перебирает способы вывода графики: программная отрисовка, OpenGL вместо DXVK, другой драйвер Mesa. Смотрите, в каком варианте артефакты пропадают."
+        },
+        {
+          "name": "Настройки Kodu (графика и производительность)",
+          "exe": [
+            "Program Files/Microsoft Research/Kodu Game Lab/KoduConfig.exe",
+            "Program Files (x86)/Microsoft Research/Kodu Game Lab/KoduConfig.exe",
+            "**/Kodu*Config*.exe",
+            "**/Configure*.exe"
+          ],
+          "hint": "Снимите галочки с тяжёлых эффектов, поставьте низкое разрешение и оконный режим. Галочка Frames per Second покажет реальный FPS."
+        },
+        {
+          "name": "Kodu: что установлено в окружении",
+          "cmd": [
+            "sh",
+            "-c",
+            "W=$(ls -d \"$HOME\"/.local/share/KoderLab/wine-builds/*/*/bin/wine 2>/dev/null | head -1); [ -x \"$W\" ] || W=$(command -v wine)\nP=\"$HOME/.local/share/KoderLab/wine/kodu\"\necho \"=== окружение ===\"\necho \"папка: $P\"\n[ -d \"$P\" ] || { echo \"окружения нет — программа не установлена\"; exit 1; }\necho \"разрядность: $([ -d \"$P/drive_c/Program Files (x86)\" ] && echo win64 || echo win32)\"\necho \"Wine: $W\"; \"$W\" --version 2>/dev/null\necho \"\"\necho \"=== компоненты (winetricks) ===\"\nWINEPREFIX=\"$P\" WINE=\"$W\" \"$HOME/.local/share/KoderLab/bin/winetricks\" list-installed 2>/dev/null \\\n  | grep -v \"^$\" || echo \"(список получить не удалось)\"\necho \"\"\necho \"=== ключевые файлы ===\"\nfor f in \"windows/Microsoft.NET/Framework/v4.0.30319/clr.dll\" \\\n         \"windows/assembly/GAC_32/Microsoft.Xna.Framework/*/Microsoft.Xna.Framework.dll\" \\\n         \"Program Files/Microsoft Research/Kodu Game Lab/Boku.exe\"; do\n  if ls \"$P/drive_c/\"$f >/dev/null 2>&1; then echo \"  ЕСТЬ   $f\"; else echo \"  НЕТ    $f\"; fi\ndone\necho \"\"\necho \"=== версия Windows в окружении ===\"\ngrep -a \"Version\" \"$P/system.reg\" 2>/dev/null | head -3 || echo \"(не прочитать)\"\n"
+          ],
+          "conflicts_with_running": false,
+          "hint": "Показывает, что реально стоит внутри окружения Kodu: компоненты, ключевые файлы .NET и XNA, разрядность, версия Windows."
+        },
+        {
+          "name": "Kodu: режим winxp (при вылете на старте)",
+          "cmd": [
+            "sh",
+            "-c",
+            "W=$(ls -d \"$HOME\"/.local/share/KoderLab/wine-builds/*/*/bin/wine 2>/dev/null | head -1); [ -x \"$W\" ] || W=$(command -v wine)\nP=\"$HOME/.local/share/KoderLab/wine/kodu\"\necho \"Переключаю окружение Kodu на Windows XP…\"\nWINEPREFIX=\"$P\" LC_ALL=C \"$W\" winecfg -v winxp && echo \"Готово. Запустите Kodu.\"\necho \"Вернуть обратно: этот же пункт, но winecfg -v win7\"\n"
+          ],
+          "conflicts_with_running": true,
+          "hint": "Kodu старая программа; под Windows XP часть проверок железа не выполняется, и вылет на старте иногда пропадает."
+        },
+        {
+          "name": "Kodu: режим win7 (вернуть обратно)",
+          "cmd": [
+            "sh",
+            "-c",
+            "W=$(ls -d \"$HOME\"/.local/share/KoderLab/wine-builds/*/*/bin/wine 2>/dev/null | head -1); [ -x \"$W\" ] || W=$(command -v wine)\nP=\"$HOME/.local/share/KoderLab/wine/kodu\"\nWINEPREFIX=\"$P\" LC_ALL=C \"$W\" winecfg -v win7 && echo \"Версия Windows: win7\"\n"
+          ],
+          "conflicts_with_running": true,
+          "hint": "Возврат к стандартному режиму."
+        },
+        {
+          "name": "Kodu: сбросить настройки графики",
+          "cmd": [
+            "sh",
+            "-c",
+            "\nP=\"$HOME/.local/share/KoderLab/wine/kodu\"\nD=\"$P/drive_c/users/$USER/AppData/Roaming/Microsoft/Kodu Game Lab\"\nN=0\nfor f in \"$D\"/*.Xml \"$D\"/*.xml \"$D\"/Settings*; do\n  [ -e \"$f\" ] || continue\n  mv \"$f\" \"$f.bak\" && echo \"сброшено: $(basename \"$f\")\" && N=$((N+1))\ndone\n[ \"$N\" = 0 ] && echo \"настроек не найдено (возможно, Kodu ни разу не стартовала)\"\necho \"Готово — при следующем запуске Kodu создаст настройки заново.\"\n"
+          ],
+          "conflicts_with_running": true,
+          "hint": "Иногда Kodu падает из-за испорченного файла настроек: он переименовывается в .bak и создаётся заново."
+        }
+      ],
+      "winetricks_cache": [
+        {
+          "verb": "xna40",
+          "file": "xnafx40_redist.msi",
+          "size": 7054336,
+          "urls": [
+            "https://download.microsoft.com/download/A/C/2/AC2C903B-E6E8-42C2-9FD7-BEBAC362A930/xnafx40_redist.msi",
+            "https://web.archive.org/web/20120325002813if_/https://download.microsoft.com/download/A/C/2/AC2C903B-E6E8-42C2-9FD7-BEBAC362A930/xnafx40_redist.msi",
+            "https://web.archive.org/web/2012id_/https://download.microsoft.com/download/A/C/2/AC2C903B-E6E8-42C2-9FD7-BEBAC362A930/xnafx40_redist.msi"
+          ]
+        }
+      ],
+      "wine_env_extra": {
+        "LC_ALL": "C.UTF-8",
+        "LANG": "C.UTF-8",
+        "LIBGL_ALWAYS_SOFTWARE": "1"
+      },
+      "wine_verify_launch": true,
+      "wine_verify_seconds": 25,
+      "wine_fallback_versions": [
+        "9.2",
+        "9.0",
+        "10.0",
+        "8.0"
+      ],
+      "wine_msi": [
+        {
+          "name": "Microsoft XNA Framework 4.0 (xnaredist)",
+          "file": "xnafx40_redist.msi",
+          "size": 7054336,
+          "verb": "xna40",
+          "args": [
+            "/quiet",
+            "/norestart"
+          ],
+          "check_glob": [
+            "Program Files/Common Files/Microsoft Shared/XNA/Framework/**/*.dll",
+            "Program Files (x86)/Common Files/Microsoft Shared/XNA/Framework/**/*.dll",
+            "windows/assembly/GAC_32/Microsoft.Xna.Framework*/**/*.dll",
+            "windows/assembly/GAC_MSIL/Microsoft.Xna.Framework*/**/*.dll"
+          ],
+          "required": true,
+          "urls": [
+            "https://download.microsoft.com/download/A/C/2/AC2C903B-E6E8-42C2-9FD7-BEBAC362A930/xnafx40_redist.msi",
+            "https://web.archive.org/web/20120325002813if_/https://download.microsoft.com/download/A/C/2/AC2C903B-E6E8-42C2-9FD7-BEBAC362A930/xnafx40_redist.msi",
+            "https://web.archive.org/web/2012id_/https://download.microsoft.com/download/A/C/2/AC2C903B-E6E8-42C2-9FD7-BEBAC362A930/xnafx40_redist.msi"
+          ]
+        }
+      ],
+      "wine_prefer_version": "9.2",
+      "wine_tricks_optional": [
+        "d3dx9"
+      ],
+      "wine_env_profiles": [
+        {
+          "name": "программная отрисовка (проверено — без артефактов)",
+          "env": {
+            "LIBGL_ALWAYS_SOFTWARE": "1"
+          }
+        },
+        {
+          "name": "аппаратное ускорение, DirectX через OpenGL",
+          "env": {
+            "WINEDLLOVERRIDES": "dxgi,d3d11,d3d10core=b"
+          }
+        },
+        {
+          "name": "аппаратное ускорение как есть",
+          "env": {}
+        }
+      ],
+      "wine_needs_win32": false
+    },
+    "roboco": {
+      "name": "RoboCo",
+      "installer": "archive",
+      "file": "roboco/RoboCo.zip",
+      "match_keywords": [
+        "roboco"
+      ],
+      "run_exe": "RoboCo.exe",
+      "wine_arch": "win64",
+      "note": "Ставится из вашего отдельного архива (не из Steam): положите его в installers/roboco/. Программа распакует архив в ~/.local/share/KoderLab/apps/roboco и посмотрит, что внутри. Если внутри Linux-сборка — сделает обычный ярлык. Если внутри Windows-версия (.exe) — сама поднимет отдельное окружение Wine и создаст ярлык через него; Wine доставится из репозитория, если его нет. Точное имя главного файла можно задать полем \"run_exe\" (сейчас RoboCo.exe) — если угадать не выйдет, путь к распакованной папке появится в журнале. Игра тяжёлая для графики: обязательно проверьте на одном ПК до раскатки на класс."
+    },
+    "tinkercad": {
+      "name": "Tinkercad",
+      "installer": "web",
+      "url": "https://www.tinkercad.com/",
+      "match_keywords": [
+        "tinkercad"
+      ],
+      "note": "Только браузерная версия (Autodesk), нужен аккаунт и интернет при каждом использовании — офлайн-варианта не существует. В Linux работает так же, как в Windows."
+    },
+    "wokwi": {
+      "name": "Wokwi — онлайн-симулятор Arduino и ESP32",
+      "installer": "web",
+      "url": "https://wokwi.com/",
+      "prefer": "url",
+      "match_keywords": [
+        "wokwi"
+      ],
+      "note": "Браузерный симулятор электроники: Arduino Uno/Mega/Nano, ESP32, Raspberry Pi Pico, плюс датчики, дисплеи, светодиоды, сервоприводы и макетная плата. Схема собирается мышкой, код пишется прямо в браузере и сразу выполняется — удобно, когда настоящих плат на класс не хватает или их жалко палить неправильной схемой. Устанавливать нечего, программа просто создаёт ярлык. Нужен интернет; для сохранения своих проектов — бесплатный аккаунт, но открыть и запустить симуляцию можно и без него."
+    },
+    "algodoo": {
+      "name": "Algodoo",
+      "installer": "wine",
+      "file": "algodoo/Algodoo_2_2_4-x64.exe",
+      "match_keywords": [
+        "algodoo"
+      ],
+      "wine_run": "Program Files/Algodoo/Algodoo.exe",
+      "alternative": "KDE Step (пакет step) или офлайн-симуляции PhET — если Wine не заработает",
+      "note": "Нативной Linux-версии нет, ставится через Wine. Берётся тот файл, который лежит в installers/algodoo/ — установщик ничего не подменяет, но подбирает настройки под конкретную сборку:\n\n• Algodoo 2.1.0 Win32 — проверенная связка из PlayOnLinux и пакета algodoo-wine (AUR): окружение win32, версия Windows winxp, компоненты vcrun2008 (обязателен), corefonts и d3dx9 (желательны). Это самый надёжный вариант для класса.\n• Algodoo 2.2.x x64 — окружение win64, версия Windows win7, компоненты vcrun2008 и corefonts. На практике запускается хуже.\n\nДля 32-битной сборки нужны 32-битные системные библиотеки и Wine, умеющий их запускать. Установщик проверяет это заранее: системный /usr/bin/wine64 без 32-битной части не подходит (ошибка c0000135 при установке vcrun2008), и тогда нужная сборка берётся из скачанных или качается.\n\nАВТОМАТИКА: компоненты при сбое ставятся повторно с перезапуском окружения. После установки программа запускается на проверку — успехом считается появившееся окно, а не просто живой процесс. Рабочие настройки запоминаются (в том числе после вашего ручного запуска) и возвращаются, если подбор ничего лучше не найдёт.\n\nРУССКИЙ ЯЗЫК: для версии 2.2.4 x64 в installers/algodoo/ лежит файл \"Full_Russian 2.2.4-x64 2026.phi\" — это готовый языковой пакет Algodoo (архив с файлами data/language/...). Установщик сам распаковывает его в папку программы сразу после установки. Чтобы включить: в самой Algodoo — шестерёнка (Setup) → Language → Full_Russian 2026.\n\nЕсли шрифты выглядят странно — в самой программе Options → Skin → White. Если картинка с артефактами — ⚙ → «🧪 Подобрать рабочую версию Wine» или режимы графики из wine_env_profiles.",
+      "wine_tricks": [
+        "vcrun2008",
+        "corefonts"
+      ],
+      "wine_prefer_version": "9.2",
+      "tools": [
+        {
+          "name": "🧪 Подобрать рабочую версию Wine",
+          "action": "wine_trial",
+          "conflicts_with_running": true,
+          "hint": "Запускает программу в каждой доступной сборке Wine и находит рабочую. Помогает, когда после обновления Wine программа перестала запускаться."
+        },
+        {
+          "name": "↩ Вернуть настройки, при которых работало",
+          "action": "wine_restore",
+          "conflicts_with_running": true,
+          "hint": "Возвращает сборку Wine и режим графики, при которых программа в последний раз успешно запускалась. Пригодится, если после подбора вариантов стало хуже."
+        },
+        {
+          "name": "🍷 Открыть настройки Wine",
+          "action": "wine_settings",
+          "conflicts_with_running": false,
+          "hint": "Компоненты, версия Windows, сброс окружения, диагностика."
+        }
+      ],
+      "wine_tricks_optional": [
+        "corefonts"
+      ],
+      "wine_verify_launch": false,
+      "wine_env_extra": {
+        "LC_ALL": "C.UTF-8",
+        "LANG": "C.UTF-8"
+      },
+      "wine_env_profiles": [
+        {
+          "name": "аппаратное ускорение как есть",
+          "env": {}
+        }
+      ],
+      "file_profiles": [
+        {
+          "name": "Algodoo 2.1.0 Win32 (проверенная сборка)",
+          "match": "2[._]?1[._]?0.*win32|win32.*2[._]?1[._]?0",
+          "wine_arch": "win64",
+          "wine_winver": "winxp",
+          "wine_tricks": [
+            "vcrun2008",
+            "corefonts",
+            "d3dx9"
+          ],
+          "wine_tricks_optional": [
+            "corefonts",
+            "d3dx9"
+          ],
+          "wine_run": "Program Files (x86)/Algodoo/Algodoo.exe",
+          "wine_env_extra": {
+            "LC_ALL": "C.UTF-8",
+            "LANG": "C.UTF-8"
+          }
+        },
+        {
+          "name": "Algodoo 2.2.x x64",
+          "match": "2[._]?2[._]?\\d.*x64|x64.*2[._]?2",
+          "wine_arch": "win64",
+          "wine_winver": "win7",
+          "wine_tricks": [
+            "vcrun2008",
+            "corefonts"
+          ],
+          "wine_tricks_optional": [
+            "corefonts"
+          ],
+          "wine_run": "Program Files/Algodoo/Algodoo.exe",
+          "wine_extra_zips": [
+            {
+              "file": "Full_Russian 2.2.4-x64 2026.phi",
+              "dest": ""
+            }
+          ]
+        }
+      ]
+    },
+    "pivot": {
+      "name": "Pivot Animator",
+      "installer": "wine",
+      "file": "pivot/pivot_setup.exe",
+      "match_keywords": [
+        "pivot"
+      ],
+      "wine_run": "Program Files/Pivot Animator/Pivot.exe",
+      "alternative": "Pencil2D (AppImage) или Synfig Studio",
+      "warn": "Pivot Animator — Windows-программа, будет установлена через Wine. Продолжить?",
+      "note": "Нативной Linux-версии нет, ставится через Wine. Программа маленькая и простая, под Wine работает хорошо, дополнительных компонентов обычно не нужно. Разрядность окружения подбирается автоматически. Если у вас портативная версия (просто Pivot.exe без установщика) — положите её сюда же, Wine запустит и её.",
+      "tools": [
+        {
+          "name": "🧪 Подобрать рабочую версию Wine",
+          "action": "wine_trial",
+          "conflicts_with_running": true,
+          "hint": "Запускает программу в каждой доступной сборке Wine и находит рабочую. Помогает, когда после обновления Wine программа перестала запускаться."
+        },
+        {
+          "name": "🍷 Открыть настройки Wine",
+          "action": "wine_settings",
+          "conflicts_with_running": false,
+          "hint": "Компоненты, версия Windows, сброс окружения, диагностика."
+        }
+      ],
+      "wine_verify_launch": true,
+      "wine_verify_seconds": 15,
+      "wine_env_extra": {
+        "LC_ALL": "C.UTF-8",
+        "LANG": "C.UTF-8"
+      }
+    },
+    "cospaces": {
+      "name": "CoSpaces Edu",
+      "installer": "web",
+      "url": "https://cospaces.io/edu/",
+      "match_keywords": [
+        "cospaces"
+      ],
+      "note": "Создание VR/AR-сцен в браузере, нужен аккаунт и интернет."
+    },
+    "piskel": {
+      "name": "Piskel",
+      "installer": "web",
+      "url": "https://www.piskelapp.com/",
+      "match_keywords": [
+        "piskel"
+      ],
+      "note": "Редактор пиксель-арта и спрайтов. Есть и офлайн-сборка Piskel для Linux (zip) — если нужна работа без интернета, положите её в installers/piskel/ и смените installer на archive."
+    },
+    "storyboardthat": {
+      "name": "Storyboard That",
+      "installer": "web",
+      "url": "https://www.storyboardthat.com/",
+      "match_keywords": [
+        "storyboardthat"
+      ],
+      "note": "Создание раскадровок и комиксов (веб)."
+    },
+    "roblox_studio": {
+      "name": "Roblox Studio",
+      "installer": "flatpak",
+      "flatpak": "org.vinegarhq.Vinegar",
+      "flatpak_args": [
+        "studio"
+      ],
+      "flatpak_remote": "flathub",
+      "match_keywords": [
+        "robloxstudio",
+        "vinegar"
+      ],
+      "check": {
+        "type": "flatpak",
+        "ref": "org.vinegarhq.Vinegar"
+      },
+      "note": "Официальной поддержки Linux нет, но есть рабочий порт Vinegar (org.vinegarhq.Vinegar) — он запускает именно Studio.\n\nВАЖНО ПРО ВХОД В АККАУНТ: не запускайте Studio второй раз, пока работает первый. Vinegar при новом запуске убивает предыдущий экземпляр, и если это случится во время авторизации, вход сорвётся с ошибкой на странице входа. Порядок такой: один запуск, дождаться окна, войти. Если что-то зависло — сначала «⚙ → Остановить Roblox (kill)», и только потом запускать снова.\n\nУстановка: сначала обычная из Flathub, при неудаче — обновление метаданных, прямая ссылка .flatpakref, поиск идентификатора, бандл .flatpak из installers/roblox_studio/.\n\nКнопка ⚙ даёт: штатный конфигуратор Vinegar (flatpak run org.vinegarhq.Vinegar manage), правку config.toml встроенным редактором, проверку аппаратного ускорения, остановку зависшего Studio, очистку кэша и версий, сведения о системе.\n\nЕсли вход не проходит и графика тормозит — проверьте аппаратное ускорение: ошибка «DRI3 error: Could not get DRI3 device» означает, что всё рисуется процессором, и встроенный браузер страницы входа (WebView2) может не отрисоваться. Лечится установкой драйверов Mesa: sudo apt-get install -y libgl1-mesa-dri mesa-vulkan-drivers mesa-utils, проверка — glxinfo | grep \"direct rendering\" (должно быть Yes).\n\nВХОД В АККАУНТ И БРАУЗЕР: авторизация идёт по ссылке вида roblox-studio-auth:, которую браузер должен передать Vinegar. Проверено на практике: через Chromium вход проходит, через Яндекс.Браузер — нет (он не отдаёт системе нестандартные схемы ссылок). Если вход не идёт, нажмите ⚙ → «Вход: починить» — Chromium станет браузером по умолчанию, а ссылка закрепится за Vinegar. Проверить текущее состояние можно соседним пунктом «Вход: проверить браузер и обработчик».\n\nПУСТОЕ ОКНО ВХОДА: за него отвечает WebView2 внутри Vinegar. В журнале бывает видно строку «Удаление WebView» — тогда компонент отсутствует, и окно входа рисовать нечем. Лечится кнопкой ⚙ → «Починить WebView»: удаляются профиль и файлы WebView2, при следующем запуске Vinegar скачает их заново. Проекты и настройки при этом не теряются.",
+      "flatpak_repo_urls": [
+        "https://dl.flathub.org/repo/flathub.flatpakrepo",
+        "https://diallog.pro/downloads/flathub.flatpakrepo"
+      ],
+      "file": "roblox_studio/Vinegar.flatpak",
+      "tools": [
+        {
+          "name": "Конфигуратор Vinegar",
+          "cmd": [
+            "flatpak",
+            "run",
+            "org.vinegarhq.Vinegar",
+            "manage"
+          ],
+          "conflicts_with_running": false,
+          "hint": "Штатная панель настроек Vinegar: версия Wine, DXVK, FFlags, переустановка Studio. Studio при этом не запускается, так что открывать её можно и во время работы программы."
+        },
+        {
+          "name": "Вход: проверить браузер и обработчик ссылки",
+          "cmd": [
+            "sh",
+            "-c",
+            "B=$(xdg-settings get default-web-browser 2>/dev/null); echo \"браузер по умолчанию: ${B:-НЕ ЗАДАН}\"; H=$(xdg-mime query default x-scheme-handler/roblox-studio-auth 2>/dev/null); echo \"обработчик ссылки входа: ${H:-НЕ ЗАДАН}\"; case \"$B\" in *hrom*) echo 'браузер подходит: Chromium';; *irefox*) echo 'браузер подходит: Firefox';; *andex*|*browser*) echo 'ВНИМАНИЕ: Яндекс.Браузер не передаёт системе ссылку roblox-studio-auth: — вход не пройдёт. Нажмите «Вход: починить».';; '') echo 'ВНИМАНИЕ: браузер по умолчанию не задан — нажмите «Вход: починить».';; esac; case \"$H\" in *inegar*) echo 'обработчик в порядке';; *) echo 'ВНИМАНИЕ: ссылка входа не закреплена за Vinegar — нажмите «Вход: починить».';; esac; echo '--- установленные браузеры ---'; ls /usr/share/applications 2>/dev/null | grep -iE 'chrom|firefox|yandex|browser' || echo 'браузеров не найдено'"
+          ],
+          "conflicts_with_running": false,
+          "hint": "Показывает, какой браузер стоит по умолчанию и кто обрабатывает ссылку roblox-studio-auth:. Вход в Roblox идёт именно через неё."
+        },
+        {
+          "name": "Вход: починить (браузер Chromium + обработчик)",
+          "cmd": [
+            "sh",
+            "-c",
+            "set -e; B=''; for c in chromium chromium-browser google-chrome firefox; do   if [ -f \"/usr/share/applications/$c.desktop\" ]; then B=\"$c.desktop\"; break; fi; done; if [ -z \"$B\" ]; then echo 'Chromium или Firefox не найдены. Установите: sudo apt-get install chromium'; exit 1; fi; echo \"Выбран браузер: $B\"; xdg-settings set default-web-browser \"$B\" && echo 'браузер по умолчанию установлен'; xdg-mime default org.vinegarhq.Vinegar.desktop x-scheme-handler/roblox-studio-auth && echo 'обработчик ссылки входа закреплён за Vinegar'; update-desktop-database ~/.local/share/applications 2>/dev/null; echo 'Готово. Запустите Studio и войдите заново.'"
+          ],
+          "conflicts_with_running": false,
+          "hint": "Ставит Chromium (или Firefox) браузером по умолчанию и закрепляет ссылку roblox-studio-auth: за Vinegar. Помогает, если вход не проходит через Яндекс.Браузер."
+        },
+        {
+          "name": "Починить WebView (пустое окно входа)",
+          "cmd": [
+            "sh",
+            "-c",
+            "B=\"$HOME/.var/app/org.vinegarhq.Vinegar\"\nif [ ! -d \"$B\" ]; then\n  echo \"Vinegar не установлен — чинить нечего.\"; exit 1\nfi\n\necho \"--- что есть сейчас ---\"\nfind \"$B/data/vinegar\" -maxdepth 5 \\( -iname '*EBWebView*' -o -iname 'WebView2*' \\) \\\n     2>/dev/null | head -5 || true\nls \"$B/cache/vinegar\"/webview-*.exe 2>/dev/null || echo \"установщика WebView в кэше нет\"\n\necho \"--- останавливаю Roblox ---\"\nflatpak run --command=vinegar org.vinegarhq.Vinegar kill 2>/dev/null || true\nsleep 2\n\necho \"--- удаляю профиль WebView2 (он пересоздастся) ---\"\nP=\"$B/data/vinegar/appdata/Roblox/RobloxStudio/WebView2\"\nif [ -d \"$P\" ]; then\n  du -sh \"$P\" 2>/dev/null\n  rm -rf \"$P\" && echo \"профиль удалён: $P\"\nelse\n  echo \"профиля не было: $P\"\nfi\n\necho \"--- удаляю установленный WebView2, чтобы скачался заново ---\"\nN=0\nfor d in \"$B\"/data/vinegar/versions/*/WebView2 \"$B\"/data/vinegar/versions/*/WebView2RuntimeInstaller; do\n  [ -e \"$d\" ] && rm -rf \"$d\" && echo \"удалено: $d\" && N=$((N+1))\ndone\n[ \"$N\" = 0 ] && echo \"установленного WebView2 не найдено (Vinegar скачает его при запуске)\"\n\necho \"--- чищу кэш загрузчика WebView ---\"\nrm -f \"$B\"/cache/vinegar/webview-*.exe 2>/dev/null && echo \"кэш очищен\" || echo \"кэш был пуст\"\n\necho\necho \"ГОТОВО. Теперь нажмите «Запустить» — Vinegar скачает и поставит WebView2 заново.\"\necho \"Если окно входа снова пустое, проверьте графику: кнопка «Проверить графику».\""
+          ],
+          "conflicts_with_running": true,
+          "hint": "Удаляет профиль и файлы WebView2 — компонента, которым Studio рисует окно входа. Vinegar скачает его заново при следующем запуске. Данные Studio и проекты не трогаются."
+        },
+        {
+          "name": "Настройки Vinegar (config.toml)",
+          "edit_file": "~/.var/app/org.vinegarhq.Vinegar/config/vinegar/config.toml",
+          "template": "vinegar",
+          "hint": "Правится прямо здесь. Если файла ещё нет, будет показан образец с пояснениями — нажмите «Сохранить», чтобы создать его."
+        },
+        {
+          "name": "Проверить графику (DRI3 / OpenGL)",
+          "cmd": [
+            "sh",
+            "-c",
+            "echo '--- система ---'; glxinfo 2>/dev/null | grep -iE 'direct rendering|OpenGL renderer|OpenGL version' || echo 'glxinfo не установлен: sudo apt-get install mesa-utils'; echo '--- внутри flatpak ---'; flatpak run --command=sh org.vinegarhq.Vinegar -c 'glxinfo 2>/dev/null | grep -iE \"direct rendering|OpenGL renderer\"' 2>/dev/null || echo 'проверить внутри flatpak не удалось'"
+          ],
+          "conflicts_with_running": false,
+          "hint": "Смотрим, есть ли аппаратное ускорение. «direct rendering: Yes» — хорошо. Если No, страница входа Roblox может не отрисоваться."
+        },
+        {
+          "name": "Остановить Roblox (kill)",
+          "cmd": [
+            "flatpak",
+            "run",
+            "--command=vinegar",
+            "org.vinegarhq.Vinegar",
+            "kill"
+          ],
+          "conflicts_with_running": false,
+          "hint": "Завершает зависший Studio."
+        },
+        {
+          "name": "Очистить кэш и версии Studio",
+          "cmd": [
+            "flatpak",
+            "run",
+            "--command=vinegar",
+            "org.vinegarhq.Vinegar",
+            "delete"
+          ],
+          "hint": "Удаляет скачанные версии и кэш; Studio закачается заново (~500 МБ). Помогает, когда вход или запуск ломаются после обновления."
+        },
+        {
+          "name": "Сведения о системе (sysinfo)",
+          "cmd": [
+            "flatpak",
+            "run",
+            "--command=vinegar",
+            "org.vinegarhq.Vinegar",
+            "sysinfo"
+          ],
+          "conflicts_with_running": false,
+          "hint": "Версия Vinegar, Wine, видеокарта."
+        }
+      ]
+    },
+    "unity_hub": {
+      "name": "Unity Hub",
+      "installer": "flatpak",
+      "flatpak": "com.unity.UnityHub",
+      "flatpak_search": "Unity Hub",
+      "flatpak_remote": "flathub",
+      "flatpak_repo_urls": [
+        "https://dl.flathub.org/repo/flathub.flatpakrepo",
+        "https://diallog.pro/downloads/flathub.flatpakrepo"
+      ],
+      "file": "unity_hub/UnityHub.AppImage",
+      "match_keywords": [
+        "unityhub",
+        "unity-hub"
+      ],
+      "check": {
+        "type": "flatpak",
+        "ref": "com.unity.UnityHub"
+      },
+      "note": "Ставится из Flathub (com.unity.UnityHub). Если идентификатор окажется другим, программа подберёт его поиском по названию и напишет в журнале. Запасной путь при недоступном Flathub — AppImage из installers/unity_hub/ (для него нужен пакет fuse).\nВАЖНО: Unity Hub — только менеджер. Сам редактор Unity докачивается отдельно при первом запуске: нужен аккаунт Unity, интернет и много места на диске (несколько ГБ на версию). Учтите это при подготовке класса — ставить редактор на каждый ПК по сети долго.\nУ flatpak-версии свои особенности: проекты и загруженные редакторы лежат внутри ~/.var/app/com.unity.UnityHub/, а доступ к папкам вне домашней даётся ограниченно. Если понадобится открыть проект с внешнего диска — выдайте права через flatpak override или Flatseal."
+    },
+    "vscode": {
+      "name": "Visual Studio Code",
+      "installer": "repo",
+      "packages": {
+        "default": [
+          "code"
+        ]
+      },
+      "file": "vscode/code.rpm",
+      "match_keywords": [
+        "vscode",
+        "code-1",
+        "code_1"
+      ],
+      "check": {
+        "type": "command",
+        "names": [
+          "code",
+          "codium"
+        ]
+      },
+      "note": "Сначала пробуется пакет из репозитория, затем локальный файл. С сайта Microsoft для ROSA и Альт качайте .rpm, для Astra/Debian — .deb; кладите в installers/vscode/, расширение программа определит сама. Открытая альтернатива без телеметрии — VSCodium (пакет codium)."
+    },
+    "blender": {
+      "name": "Blender",
+      "installer": "repo",
+      "packages": {
+        "default": [
+          "blender"
+        ]
+      },
+      "file": "blender/blender-linux-x64.tar.xz",
+      "match_keywords": [
+        "blender"
+      ],
+      "run_bin": "blender",
+      "check": {
+        "type": "command",
+        "name": "blender"
+      },
+      "note": "В репозиториях есть у всех целевых дистрибутивов. Если нужна конкретная (более новая) версия — скачайте с blender.org архив blender-*-linux-x64.tar.xz, положите в installers/blender/ и уберите поле \"packages\": тогда программа распакует архив и сделает ярлык, ничего не ставя в систему."
+    },
+    "trik_studio": {
+      "name": "TRIK Studio",
+      "installer": "script",
+      "file": "trik_studio/trik-studio-installer-gnu64.run",
+      "match_keywords": [
+        "trikstudio",
+        "trik-studio",
+        "trik"
+      ],
+      "script_needs_root": false,
+      "run_bin": "trik-studio",
+      "find_after_install": [
+        "~/TRIKStudio/trik-studio",
+        "~/TRIKStudio/bin/trik-studio",
+        "~/trik-studio/trik-studio",
+        "~/trikStudio/trik-studio",
+        "~/*/trik-studio",
+        "/opt/trik-studio/trik-studio",
+        "/opt/TRIKStudio/trik-studio"
+      ],
+      "note": "Официальный установщик trik-studio-installer-gnu64.run — это БИНАРНЫЙ файл (мастер Qt Installer Framework), его нельзя запускать через bash. Программа запускает его напрямую и от имени обычного пользователя: откроется обычный мастер, пройдите шаги и не меняйте путь установки по умолчанию (папка в домашнем каталоге). Права root не нужны. После установки программа сама найдёт файл запуска по списку в поле find_after_install и создаст ярлык; если у вас путь другой — допишите его туда."
+    },
+    "brave": {
+      "name": "Brave Browser",
+      "installer": "flatpak",
+      "flatpak": "com.brave.Browser",
+      "flatpak_remote": "flathub",
+      "flatpak_repo_urls": [
+        "https://dl.flathub.org/repo/flathub.flatpakrepo",
+        "https://diallog.pro/downloads/flathub.flatpakrepo"
+      ],
+      "file": "brave/Brave.flatpak",
+      "match_keywords": [
+        "brave"
+      ],
+      "check": {
+        "type": "flatpak",
+        "ref": "com.brave.Browser"
+      },
+      "note": "Браузер с блокировкой рекламы и трекеров — используется для работы с Roblox Studio через веб (аккаунт, Creator Hub) и для документации. Ставится из Flathub; если файл .flatpak уже лежит в installers/brave/, установщик возьмёт его без обращения к Flathub."
+    }
+  },
+  "courses": [
+    {
+      "id": "small_academy",
+      "number": 1,
+      "name": "Малая IT Академия (5–7 лет)",
+      "app_ids": [
+        "scratch_jr",
+        "gcompris",
+        "scratch",
+        "piktomir"
+      ]
+    },
+    {
+      "id": "minecraft_ai",
+      "number": 2,
+      "name": "MineCraft — программирование и искусственный интеллект (6–10 лет)",
+      "app_ids": [
+        "tlauncher",
+        "scratch",
+        "blockbench"
+      ]
+    },
+    {
+      "id": "ai_workshop",
+      "number": 3,
+      "name": "Мастерская искусственного интеллекта (7–12 лет)",
+      "app_ids": [
+        "scratch"
+      ]
+    },
+    {
+      "id": "mobile_robotics",
+      "number": 4,
+      "name": "Мобильная робототехника (7–12 лет)",
+      "app_ids": [
+        "scratch",
+        "phet_circuit",
+        "phet_collection",
+        "kodu",
+        "roboco",
+        "tinkercad",
+        "algodoo"
+      ]
+    },
+    {
+      "id": "digital_creativity",
+      "number": 5,
+      "name": "Цифровое творчество (7–10 лет)",
+      "app_ids": [
+        "tuxpaint",
+        "pivot",
+        "scratch_jr",
+        "kodu",
+        "cospaces",
+        "piskel",
+        "storyboardthat",
+        "blockbench"
+      ]
+    },
+    {
+      "id": "roblox_gamedesign",
+      "number": 6,
+      "name": "Геймдизайн в Roblox Studio (8–12 лет)",
+      "app_ids": [
+        "roblox_studio",
+        "brave"
+      ]
+    },
+    {
+      "id": "unity_dev",
+      "number": 7,
+      "name": "Разработка игр на Unity (10–16 лет)",
+      "app_ids": [
+        "unity_hub",
+        "vscode"
+      ]
+    },
+    {
+      "id": "robotics_academy",
+      "number": 11,
+      "name": "Академия робототехники (10–16 лет)",
+      "app_ids": [
+        "blender",
+        "scratch",
+        "trik_studio",
+        "phet_circuit",
+        "phet_collection",
+        "wokwi",
+        "roboco",
+        "algodoo"
+      ]
+    },
+    {
+      "id": "webdev_js_python",
+      "number": 13,
+      "name": "Разработка веб-приложений на JavaScript / Python (12–17 лет)",
+      "app_ids": [
+        "vscode"
+      ]
+    }
+  ],
+  "ui": {
+    "simple": true
+  },
+  "title": "ИТ ШКОЛА KoderLab - ПО",
+  "version": "1.0"
+}
