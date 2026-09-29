@@ -298,6 +298,16 @@
           ],
           "conflicts_with_running": true,
           "hint": "Иногда Kodu падает из-за испорченного файла настроек: он переименовывается в .bak и создаётся заново."
+        },
+        {
+          "name": "⌨ Починить переключение раскладки (RU/EN)",
+          "cmd": [
+            "sh",
+            "-c",
+            "echo \"Wine и Java-программы (в т.ч. TLauncher/Minecraft) читают раскладку\"\necho \"клавиатуры напрямую у X11, а не через переключатель GNOME/KDE —\"\necho \"поэтому смена языка через панель на них иногда не действует.\"\necho \"\"\necho \"Перенастраиваю переключение на уровне X11 (это подхватят все программы,\"\necho \"включая Wine и Java): раскладки ru,us, переключение — Alt+Shift.\"\necho \"\"\nif command -v setxkbmap >/dev/null; then\n  if setxkbmap -layout us,ru -option grp:alt_shift_toggle 2>&1; then\n    echo \"Готово. Проверьте переключение прямо сейчас (Alt+Shift), потом\"\n    echo \"откройте программу заново.\"\n  else\n    echo \"Не получилось — возможно, X11 недоступен (Wayland?) или нужны\"\n    echo \"другие раскладки. Посмотрите текущие: setxkbmap -query\"\n  fi\nelse\n  echo \"Команда setxkbmap не найдена — установите пакет x11-xkb-utils\"\n  echo \"(Debian/Ubuntu) или xkeyboard-config/setxkbmap (ROSA/Fedora).\"\nfi\n"
+          ],
+          "conflicts_with_running": false,
+          "hint": "Если внутри программы (или в Minecraft/TLauncher) не переключается язык ввода — дело не в самой программе, а в том, что она читает раскладку клавиатуры напрямую у X11, минуя переключатель GNOME/KDE. Эта кнопка настраивает переключение на уровне X11 (ru/en, Alt+Shift) так, чтобы его видели все программы, включая Wine и Java."
         }
       ],
       "winetricks_cache": [
@@ -436,6 +446,16 @@
           "action": "wine_settings",
           "conflicts_with_running": false,
           "hint": "Компоненты, версия Windows, сброс окружения, диагностика."
+        },
+        {
+          "name": "⌨ Починить переключение раскладки (RU/EN)",
+          "cmd": [
+            "sh",
+            "-c",
+            "echo \"Wine и Java-программы (в т.ч. TLauncher/Minecraft) читают раскладку\"\necho \"клавиатуры напрямую у X11, а не через переключатель GNOME/KDE —\"\necho \"поэтому смена языка через панель на них иногда не действует.\"\necho \"\"\necho \"Перенастраиваю переключение на уровне X11 (это подхватят все программы,\"\necho \"включая Wine и Java): раскладки ru,us, переключение — Alt+Shift.\"\necho \"\"\nif command -v setxkbmap >/dev/null; then\n  if setxkbmap -layout us,ru -option grp:alt_shift_toggle 2>&1; then\n    echo \"Готово. Проверьте переключение прямо сейчас (Alt+Shift), потом\"\n    echo \"откройте программу заново.\"\n  else\n    echo \"Не получилось — возможно, X11 недоступен (Wayland?) или нужны\"\n    echo \"другие раскладки. Посмотрите текущие: setxkbmap -query\"\n  fi\nelse\n  echo \"Команда setxkbmap не найдена — установите пакет x11-xkb-utils\"\n  echo \"(Debian/Ubuntu) или xkeyboard-config/setxkbmap (ROSA/Fedora).\"\nfi\n"
+          ],
+          "conflicts_with_running": false,
+          "hint": "Если внутри программы (или в Minecraft/TLauncher) не переключается язык ввода — дело не в самой программе, а в том, что она читает раскладку клавиатуры напрямую у X11, минуя переключатель GNOME/KDE. Эта кнопка настраивает переключение на уровне X11 (ru/en, Alt+Shift) так, чтобы его видели все программы, включая Wine и Java."
         }
       ],
       "wine_tricks_optional": [
