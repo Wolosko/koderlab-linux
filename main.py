@@ -912,7 +912,7 @@ def _user_desktop_dir():
 
 KODERLAB_ICON = os.path.join(ICONS_DIR, "koderlab.png")
 KODERLAB_TITLE = "ИТ ШКОЛА KoderLab - ПО"
-KODERLAB_VERSION = "1.1.2"
+KODERLAB_VERSION = "1.1.3"
 
 
 def _koderlab_icon():
@@ -8143,7 +8143,7 @@ class MainWindow(QMainWindow):
             # переустановка, настройки Wine, лог. Остальное (раздача по
             # сети, поиск на GitHub, починка flatpak, отчёт о ПК) — для
             # техника с целым каталогом курсов, здесь не нужно.
-            for widget in (self.search, course_btn, self.selected_btn,
+            for widget in (self.search, course_btn,
                            self.admin_label, self.root_btn, self.distro_label,
                            self.share_btn, self.receive_btn, self.net_label,
                            self.sort_btn, self.gh_btn, self.fp_btn,
