@@ -912,7 +912,7 @@ def _user_desktop_dir():
 
 KODERLAB_ICON = os.path.join(ICONS_DIR, "koderlab.png")
 KODERLAB_TITLE = "ИТ ШКОЛА KoderLab - ПО"
-KODERLAB_VERSION = "1.1.3"
+KODERLAB_VERSION = "1.1.4"
 
 
 def _koderlab_icon():
@@ -7981,6 +7981,7 @@ class MainWindow(QMainWindow):
         self._refresh_statuses()
         self._refresh_root_status()
         QTimer.singleShot(300, self._warn_if_root)
+        QTimer.singleShot(600, self._log_update_status)
 
     def _load_courses(self):
         with open(COURSES_FILE, encoding="utf-8") as f:
@@ -8812,6 +8813,13 @@ class MainWindow(QMainWindow):
             "Пароль администратора будет запрошен сам — только тогда, когда "
             "он реально нужен.")
 
+    def _log_update_status(self):
+        """Пишет в журнал, проверялось ли обновление и чего не хватает —
+        чтобы не гадать, почему автообновление молчит."""
+        self.log("", "info")
+        self.log("═══ Автообновление ═══", "run")
+        check_for_update(line=self.log)
+
     def _refresh_root_status(self):
         if is_root():
             user, _home = real_user()
@@ -9203,14 +9211,24 @@ def _update_token():
         return None
 
 
-def check_for_update():
+def check_for_update(line=None):
     """Сверяет версию с GitHub. Возвращает (есть_ли_новее, версия).
 
     Не ломает запуск, если сети/токена нет или GitHub недоступен — тогда
-    просто (False, None), и программа работает как есть."""
+    просто (False, None), и программа работает как есть. line, если
+    передан, получает подробности проверки (для журнала админ-окна)."""
+    def report(text, kind="info"):
+        if line:
+            line(text, kind)
+
     token = _update_token()
     if not token:
+        report(f"○ Автообновление выключено: не найден файл "
+               f"{UPDATE_TOKEN_FILE} — положите туда GitHub-токен с правом "
+               "читать репозиторий koderlab-linux (см. инструкцию).", "warn")
         return False, None
+
+    report(f"→ Автообновление: сверяю версию с {UPDATE_REPO}…", "run")
     try:
         req = urllib.request.Request(
             f"https://api.github.com/repos/{UPDATE_REPO}/contents/courses.json",
@@ -9218,11 +9236,33 @@ def check_for_update():
                      "Accept": "application/vnd.github.raw"})
         with urllib.request.urlopen(req, timeout=8) as r:
             remote = json.loads(r.read().decode("utf-8"))
-    except (OSError, urllib.error.URLError, ValueError, UnicodeDecodeError):
+    except urllib.error.HTTPError as e:
+        if e.code in (401, 403):
+            report("✗ Автообновление: токен не подходит (нет доступа к "
+                   f"{UPDATE_REPO}) — код {e.code}. Проверьте, что токен "
+                   "не истёк и даёт доступ Contents: Read-only именно к "
+                   "этому репозиторию.", "err")
+        elif e.code == 404:
+            report(f"✗ Автообновление: репозиторий {UPDATE_REPO} или файл "
+                   "courses.json в нём не найден (код 404).", "err")
+        else:
+            report(f"⚠ Автообновление: GitHub ответил ошибкой {e.code}.", "warn")
         return False, None
+    except (OSError, urllib.error.URLError, ValueError, UnicodeDecodeError) as e:
+        report(f"⚠ Автообновление: не удалось проверить — нет сети или "
+               f"GitHub недоступен ({e}).", "warn")
+        return False, None
+
     remote_version = remote.get("version")
-    if remote_version and str(remote_version) != KODERLAB_VERSION:
+    if not remote_version:
+        report("⚠ Автообновление: в courses.json репозитория не указано "
+               "поле \"version\".", "warn")
+        return False, None
+    if str(remote_version) != KODERLAB_VERSION:
+        report(f"⚠ Автообновление: доступна версия {remote_version} "
+               f"(сейчас установлена {KODERLAB_VERSION}).", "warn")
         return True, str(remote_version)
+    report(f"✓ Автообновление: установлена последняя версия ({KODERLAB_VERSION}).", "ok")
     return False, None
 
 
