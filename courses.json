@@ -794,6 +794,25 @@
         "ref": "com.brave.Browser"
       },
       "note": "Браузер с блокировкой рекламы и трекеров — используется для работы с Roblox Studio через веб (аккаунт, Creator Hub) и для документации. Ставится из Flathub; если файл .flatpak уже лежит в installers/brave/, установщик возьмёт его без обращения к Flathub."
+    },
+    "thonny": {
+      "name": "Thonny",
+      "installer": "flatpak",
+      "flatpak": "org.thonny.Thonny",
+      "flatpak_remote": "flathub",
+      "flatpak_repo_urls": [
+        "https://dl.flathub.org/repo/flathub.flatpakrepo",
+        "https://diallog.pro/downloads/flathub.flatpakrepo"
+      ],
+      "file": "thonny/Thonny.flatpak",
+      "match_keywords": [
+        "thonny"
+      ],
+      "check": {
+        "type": "flatpak",
+        "ref": "org.thonny.Thonny"
+      },
+      "note": "Среда разработки на Python для обучения: подсказки по ошибкам, пошаговая отладка, встроенный менеджер пакетов pip — проще, чем PyCharm, специально сделана для тех, кто только учится программировать. Ставится из Flathub; если .flatpak уже лежит в installers/thonny/, установщик возьмёт его без обращения к сети."
     }
   },
   "courses": [
@@ -891,9 +910,10 @@
     {
       "id": "webdev_js_python",
       "number": 13,
-      "name": "Разработка веб-приложений на JavaScript / Python (12–17 лет)",
+      "name": "Разработка прикладных приложений на Python",
       "app_ids": [
-        "vscode"
+        "vscode",
+        "thonny"
       ]
     }
   ],
@@ -901,5 +921,5 @@
     "simple": true
   },
   "title": "ИТ ШКОЛА KoderLab - ПО",
-  "version": "1.0"
+  "version": "1.1.2"
 }

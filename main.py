@@ -912,7 +912,7 @@ def _user_desktop_dir():
 
 KODERLAB_ICON = os.path.join(ICONS_DIR, "koderlab.png")
 KODERLAB_TITLE = "ИТ ШКОЛА KoderLab - ПО"
-KODERLAB_VERSION = "1.0"
+KODERLAB_VERSION = "1.1.2"
 
 
 def _koderlab_icon():
@@ -7589,6 +7589,43 @@ class AppTile(QFrame):
         super().mousePressEvent(event)
 
 
+class CourseSelectDialog(QDialog):
+    """Список курсов с галочками — для установки всех программ выбранных
+    курсов одной кнопкой."""
+
+    def __init__(self, courses, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Выбор курсов")
+        self.resize(440, 420)
+        lay = QVBoxLayout(self)
+        hint = QLabel("Отметьте курсы — установятся все программы из них "
+                      "(уже установленные пропускаются).")
+        hint.setWordWrap(True)
+        lay.addWidget(hint)
+        self.list = QListWidget()
+        for c in courses:
+            n = len(c.get("app_ids") or [])
+            item = QListWidgetItem(f"{c['name']}  ({n})")
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(Qt.Unchecked)
+            item.setData(Qt.UserRole, c["id"])
+            self.list.addItem(item)
+        lay.addWidget(self.list)
+        btns = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        btns.button(QDialogButtonBox.Ok).setText("Установить отмеченные")
+        btns.accepted.connect(self.accept)
+        btns.rejected.connect(self.reject)
+        lay.addWidget(btns)
+
+    def checked_course_ids(self):
+        ids = []
+        for i in range(self.list.count()):
+            item = self.list.item(i)
+            if item.checkState() == Qt.Checked:
+                ids.append(item.data(Qt.UserRole))
+        return ids
+
+
 class LauncherWindow(QMainWindow):
     """То, что видит педагог: поиск сверху и плитки программ снизу —
     зелёная подпись «установлено», серая «не установлено».
@@ -7606,6 +7643,7 @@ class LauncherWindow(QMainWindow):
         self.resize(900, 640)
         self._tiles = {}
         self._busy_app = None
+        self._batch_ids = []
         self._cols = 0
         self._build_ui()
         self._populate()
@@ -7624,6 +7662,10 @@ class LauncherWindow(QMainWindow):
         ver.setStyleSheet("color:#888; font-size:12px;")
         header.addWidget(ver)
         header.addStretch()
+        self.courses_btn = QPushButton("📚 Курсы…")
+        self.courses_btn.setToolTip("Выбрать курсы и установить все программы из них разом")
+        self.courses_btn.clicked.connect(self._pick_courses)
+        header.addWidget(self.courses_btn)
         self.gear_btn = QToolButton()
         self.gear_btn.setText("⚙")
         self.gear_btn.setToolTip("Установка, переустановка, настройки Wine, журнал")
@@ -7784,6 +7826,8 @@ class LauncherWindow(QMainWindow):
 
     def _op_reset(self):
         self._busy_app = None
+        self._batch_ids = []
+        self.progress.setMaximum(0)
         self.progress.setVisible(False)
         self.status_label.setVisible(False)
         self.op_cancel_btn.setVisible(False)
@@ -7793,6 +7837,76 @@ class LauncherWindow(QMainWindow):
         tile = self._tiles.get(app_id)
         if app and tile:
             tile.set_installed(is_app_installed(app))
+
+    # ---- выбор курсов и установка всего разом ----
+    def _pick_courses(self):
+        if self._busy_app:
+            QMessageBox.information(
+                self, "Занято", "Дождитесь окончания текущей установки.")
+            return
+        dlg = CourseSelectDialog(self.admin.courses.get("courses", []), self)
+        if dlg.exec_() != QDialog.Accepted:
+            return
+        wanted = set(dlg.checked_course_ids())
+        if not wanted:
+            return
+        apps, seen = [], set()
+        for course in self.admin.courses.get("courses", []):
+            if course["id"] not in wanted:
+                continue
+            for app in self.admin._course_apps(course):
+                if app["id"] in seen:
+                    continue
+                if (app.get("installer") or "").lower() in ("unsupported", "none"):
+                    continue
+                seen.add(app["id"])
+                apps.append(app)
+        if apps:
+            self._install_batch(apps)
+
+    def _install_batch(self, apps):
+        self._busy_app = "*batch*"
+        self._batch_ids = [a["id"] for a in apps]
+        for aid in self._batch_ids:
+            tile = self._tiles.get(aid)
+            if tile and not tile.installed:
+                tile.set_installed(False, busy=True)
+        self.status_label.setText(f"Устанавливаю {len(apps)} программ…")
+        self.status_label.setVisible(True)
+        self.progress.setMaximum(len(apps))
+        self.progress.setValue(0)
+        self.progress.setVisible(True)
+        self.op_cancel_btn.setVisible(True)
+        self.admin._start(apps, "install")
+        w = self.admin.worker
+        if not (w and w.isRunning()):
+            self._op_reset()
+            for aid in self._batch_ids:
+                self._refresh_tile(aid)
+            return
+        w.sig_line.connect(self._on_worker_line)
+        w.sig_step.connect(self._on_batch_step)
+        w.sig_done.connect(self._on_batch_done)
+
+    def _on_batch_step(self, current, total, name):
+        self.progress.setMaximum(total)
+        self.progress.setValue(current - 1)
+        self.status_label.setText(f"[{current}/{total}] {name}…")
+
+    def _on_batch_done(self, report):
+        ids = self._batch_ids
+        self._op_reset()
+        for aid in ids:
+            self._refresh_tile(aid)
+        report = report or {}
+        msg = (f"Успешно: {report.get('success', 0)}    "
+               f"Пропущено: {report.get('skipped', 0)}    "
+               f"Ошибок: {report.get('error', 0)}")
+        if report.get("error", 0):
+            QMessageBox.warning(self, "Готово с ошибками",
+                                msg + "\n\nПодробности — в окне настроек (кнопка ⚙).")
+        else:
+            QMessageBox.information(self, "Готово", msg)
 
     # ---- окно администратора по ⚙ ----
     def _open_admin(self):
