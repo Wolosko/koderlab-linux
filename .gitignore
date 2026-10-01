@@ -14,4 +14,4 @@ __pycache__/
 installers__old/
 
 # секрет автообновления — только на установленной копии, не в репозитории
-update_token.txt
+.update_token

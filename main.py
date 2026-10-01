@@ -9192,10 +9192,10 @@ class MainWindow(QMainWindow):
 # на этот единственный репозиторий (создаётся на github.com/settings/tokens,
 # Fine-grained token → Only select repositories → koderlab-linux →
 # Repository permissions → Contents: Read-only). Токен кладётся в файл
-# update_token.txt рядом с main.py — в git этот файл не попадает
+# .update_token рядом с main.py — в git этот файл не попадает
 # (см. .gitignore), он существует только на установленных копиях.
 UPDATE_REPO = "Wolosko/koderlab-linux"
-UPDATE_TOKEN_FILE = os.path.join(BASE_DIR, "update_token.txt")
+UPDATE_TOKEN_FILE = os.path.join(BASE_DIR, ".update_token")
 # Что обновляется из репозитория. installers/ (файлы программ) и то, что
 # создаётся на месте (ярлыки, settings.json, markers) — не трогаем, это
 # не код, а данные конкретного компьютера.
@@ -9271,7 +9271,7 @@ def apply_update():
     подменяет файлы программы. Возвращает (успех, сообщение об ошибке)."""
     token = _update_token()
     if not token:
-        return False, "нет файла update_token.txt"
+        return False, "нет файла .update_token"
     tmp_dir = tempfile.mkdtemp(prefix="koderlab_update_")
     archive = os.path.join(tmp_dir, "update.tar.gz")
     try:
