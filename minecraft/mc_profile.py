@@ -3,7 +3,9 @@
 
 Лаунчер хранит:
   - аккаунты — в <папка игры>/tlauncher_profiles.json ("plain" = офлайн-ник);
-  - настройки — в ~/.tlauncher/legacy.properties (Java .properties).
+  - настройки — в ~/.tlauncher/legacy.properties (Java .properties),
+    на Windows — в %APPDATA%\\.tlauncher\\legacy.properties.
+Модуль общий для koderlab-linux и koderlab-windows.
 Формат проверен на Legacy Launcher 1.169.4: с этими файлами он сразу
 открывается с нужным ником, версией «Forge 1.8.9» и папкой игры.
 
@@ -54,6 +56,22 @@ def _machine_seed():
     разворачивают из одного образа, и он у всех совпадает. MAC-адреса и имя
     компьютера у клонов разные."""
     parts = []
+    if os.name == "nt":
+        # Windows: MachineGuid (у клонов образа тоже бывает общим) + имя
+        # компьютера + MAC — как и на Linux, вместе они различают ПК класса
+        try:
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                                r"SOFTWARE\Microsoft\Cryptography", 0,
+                                winreg.KEY_READ | winreg.KEY_WOW64_64KEY) as k:
+                parts.append(str(winreg.QueryValueEx(k, "MachineGuid")[0]))
+        except OSError:
+            pass
+        parts.append(socket.gethostname())
+        mac = uuid.getnode()
+        if not (mac >> 40) & 1:      # бит «случайный адрес» — значит, MAC не нашёлся
+            parts.append("%012x" % mac)
+        return "|".join(p for p in parts if p)
     for p in ("/etc/machine-id", "/var/lib/dbus/machine-id"):
         try:
             with open(p, encoding="ascii", errors="ignore") as f:
