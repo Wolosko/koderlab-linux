@@ -6,7 +6,7 @@
     "gcompris",
     "blender",
     "vscode",
-    "tlauncher"
+    "legacy_launcher"
   ],
   "apps": {
     "scratch": {
@@ -116,47 +116,54 @@
       },
       "note": "Рисовалка для детей 3–12 лет, родная для Linux и есть в репозиториях всех целевых дистрибутивов. Вторым пакетом ставятся штампы-наклейки. Если пакет со штампами называется иначе, поправьте packages."
     },
-    "tlauncher": {
-      "name": "TLauncher",
-      "installer": "jar",
-      "file": "tlauncher/TLauncher_v18.zip",
+    "legacy_launcher": {
+      "name": "KoderLab (Legacy Launcher)",
+      "installer": "legacy_launcher",
       "match_keywords": [
-        "tlauncher"
+        "legacylauncher",
+        "legacy_launcher",
+        "llaun"
       ],
-      "note": "Кладите в installers/tlauncher/ либо ваш архив TLauncher_v17.zip целиком, либо просто TLauncher.jar.\n\nJAVA ПРОВЕРЯЕТСЯ ОБЯЗАТЕЛЬНО — и при установке, и перед каждым запуском. Нужна не любая Java, а версии 17 или новее и с поддержкой окон. На Java 11 лаунчер не запускается вовсе, а варианты *-headless дают ошибку UnsatisfiedLinkError ... libawt_xawt.so. Если подходящей нет, установщик ставит её сам, начиная с java-17-openjdk (11-я исключена) (на ROSA — dnf install java-17-openjdk, на Альт/М ОС — apt-get install java-17-openjdk, на Astra/Debian — openjdk-17-jre). Установка без рабочей Java не считается успешной, а запуск не начинается вовсе — вместо непонятной ошибки в журнале сразу написано, что делать.\n\nКнопка ⚙: «Java: проверить» показывает все установленные Java и умеет ли каждая открывать окна; «Java: установить/починить» ставит подходящую, перебирая пакеты; «Папка лаунчера» открывает ~/.tlauncher с логами.\n\nРазделение, которое экономит время: системная Java нужна, чтобы запустился САМ лаунчер. Для игры TLauncher скачивает отдельную Java в ~/.tlauncher/starter/jre_default/ и системную не использует — её версия на Minecraft не влияет.\n\nЗапуск идёт от обычного пользователя, как в вашей инструкции: java -jar TLauncher.jar. Под root лаунчер запускать нельзя.",
-      "requires": {
-        "java": true,
-        "java_gui": true
-      },
+      "note": "Minecraft 1.8.9 + Forge + модпак ComputerCraftEdu RUS (ComputerCraft, ComputerCraftEdu на русском, BetterFps, Ding, FoamFix). Заменяет TLauncher.\n\nУстанавливает minecraft/install.sh: Legacy Launcher, моды в ~/.minecraft/mods, ник и настройки лаунчера, ярлык «KoderLab (Legacy Launcher)» в меню и на рабочем столе. Лаунчер открывается сразу с ником KoderNNNN (свой на каждом компьютере) и версией «Forge 1.8.9»; реклама серверов выключена. Свой ник, выбранный в лаунчере, сохраняется.\n\nJava: если в системе нет Java 17 с поддержкой окон, ставится переносная Java в домашнюю папку — без пароля и без места на «/». Готовые файлы можно положить в installers/legacy_launcher/LegacyLauncher.jar и installers/java/ — тогда интернет нужен только при первом входе в игру (лаунчер качает Minecraft и Forge, ~150 МБ).",
       "tools": [
         {
-          "name": "Java: проверить",
+          "name": "Ник: показать",
           "cmd": [
             "sh",
             "-c",
-            "echo \"=== Java для Minecraft (нужна версия 17 или новее, с поддержкой окон) ===\"\nFOUND=0; GOOD=0; SEEN=\"\"\nfor J in $(command -v java 2>/dev/null) /usr/lib/jvm/*/bin/java /usr/lib64/jvm/*/bin/java /opt/*/bin/java; do\n  [ -x \"$J\" ] || continue\n  R=$(readlink -f \"$J\")\n  case \" $SEEN \" in *\" $R \"*) continue;; esac\n  SEEN=\"$SEEN $R\"\n  FOUND=$((FOUND+1))\n  V=$(\"$J\" -version 2>&1 | head -1)\n  N=$(echo \"$V\" | sed -n 's/.*version \"\\([0-9][0-9]*\\).*/\\1/p')\n  [ \"$N\" = \"1\" ] && N=$(echo \"$V\" | sed -n 's/.*version \"1\\.\\([0-9][0-9]*\\).*/\\1/p')\n  H=$(dirname \"$(dirname \"$R\")\")\n  GUI=no\n  find \"$H/lib\" -name 'libawt_xawt.so' 2>/dev/null | grep -q . && GUI=yes\n  echo \"\"\n  echo \"  $J\"\n  echo \"    $V\"\n  if [ \"$GUI\" = no ]; then\n    echo \"    ПЛОХО: headless, без графики — лаунчер не откроет окно\"\n  elif [ -n \"$N\" ] && [ \"$N\" -lt 17 ]; then\n    echo \"    ПЛОХО: версия $N слишком старая — на 11-й лаунчер не запускается\"\n  else\n    echo \"    OK  подходит (версия $N, окна есть)\"; GOOD=$((GOOD+1))\n  fi\ndone\n\necho \"\"\nif [ \"$FOUND\" = 0 ]; then\n  echo \"ИТОГ: Java не найдена. Нажмите «Java: установить/починить».\"\nelif [ \"$GOOD\" = 0 ]; then\n  echo \"ИТОГ: подходящей Java нет — нужна версия 17+ с поддержкой окон.\"\n  echo \"      Нажмите «Java: установить/починить» или выполните:\"\n  echo \"      sudo dnf install java-17-openjdk\"\nelse\n  echo \"ИТОГ: подходящая Java есть ($GOOD шт.) — лаунчер должен запускаться.\"\nfi\n\necho \"\"\necho \"JAVA_HOME: ${JAVA_HOME:-не задан (это нормально)}\"\necho \"\"\necho \"=== Java, которую TLauncher скачал себе сам (для самой игры) ===\"\nls -d \"$HOME\"/.tlauncher/starter/jre_default/*/ 2>/dev/null \\\n  || echo \"  пока нет — появится после первого запуска лаунчера\"\necho \"\"\necho \"Примечание: системная Java нужна, чтобы запустился САМ лаунчер.\"\necho \"Для Minecraft TLauncher скачивает отдельную Java и системную не использует.\""
+            "n=$(cat \"$HOME/.local/share/KoderLab/minecraft-nick\" 2>/dev/null); echo \"Ник этого компьютера: ${n:-ещё не задан — сначала установите программу}\""
           ],
           "conflicts_with_running": false,
-          "hint": "Показывает все установленные Java: версию и умеет ли каждая открывать окна. Подходит только версия 17+ с графикой."
+          "hint": "Ник, с которым лаунчер открывается на этом компьютере."
         },
         {
-          "name": "Java: установить/починить",
+          "name": "Ник: новый случайный",
           "cmd": [
             "sh",
             "-c",
-            "if [ \"$(id -u)\" -ne 0 ]; then SU=\"pkexec\"; else SU=\"\"; fi\necho \"Определяю систему…\"\nif command -v dnf >/dev/null 2>&1; then\n  PKGS=\"java-17-openjdk java-17-openjdk-devel java-21-openjdk\"\n  INST=\"dnf install -y\"\nelif command -v urpmi >/dev/null 2>&1; then\n  PKGS=\"java-17-openjdk java-21-openjdk\"\n  INST=\"urpmi --auto\"\nelif command -v apt-get >/dev/null 2>&1 && command -v rpm >/dev/null 2>&1; then\n  PKGS=\"java-17-openjdk java-21-openjdk\"\n  INST=\"apt-get install -y\"\nelif command -v apt-get >/dev/null 2>&1; then\n  PKGS=\"openjdk-17-jre openjdk-17-jdk openjdk-21-jre default-jre\"\n  INST=\"apt-get install -y\"\nelse\n  echo \"Менеджер пакетов не определён — поставьте Java вручную.\"; exit 1\nfi\n\nfor P in $PKGS; do\n  echo \"\"\n  echo \"--- пробую $P ---\"\n  if $SU $INST $P; then\n    for J in $(command -v java) /usr/lib/jvm/*/bin/java /usr/lib64/jvm/*/bin/java; do\n      [ -x \"$J\" ] || continue\n      H=$(dirname \"$(dirname \"$(readlink -f \"$J\")\")\")\n      N=$(\"$J\" -version 2>&1 | head -1 | sed -n 's/.*version \"\\([0-9][0-9]*\\).*/\\1/p')\n      if find \"$H/lib\" -name 'libawt_xawt.so' 2>/dev/null | grep -q . \\\n         && [ -n \"$N\" ] && [ \"$N\" -ge 17 ]; then\n        echo \"\"\n        echo \"ГОТОВО: установлена подходящая Java (версия $N, с окнами): $J\"\n        \"$J\" -version 2>&1 | head -1\n        exit 0\n      fi\n    done\n    echo \"пакет встал, но подходящей Java (17+, с окнами) всё ещё нет — пробую следующий\"\n  else\n    echo \"пакет $P поставить не удалось — пробую следующий\"\n  fi\ndone\necho \"\"\necho \"Не удалось. Поставьте вручную и повторите проверку:\"\necho \"  ROSA:            sudo dnf install java-11-openjdk\"\necho \"  Альт / М ОС:     sudo apt-get install java-17-openjdk\"\necho \"  Astra / Debian:  sudo apt-get install openjdk-17-jre\"\necho \"ВАЖНО: пакеты -headless не подходят, и Java 11 тоже — нужна 17 или новее.\""
+            "[ -f \"$HOME/.local/share/KoderLab/apps/legacy_launcher/mc_profile.py\" ] || { echo \"Сначала установите программу.\"; exit 1; }; n=$(python3 \"$HOME/.local/share/KoderLab/apps/legacy_launcher/mc_profile.py\" ensure \"$HOME/.minecraft\" \"$HOME/.tlauncher/legacy.properties\" \"$HOME/.local/share/KoderLab/minecraft-nick\" \"Koder$(shuf -i 1000-9999 -n 1)\") && echo \"Новый ник: $n\""
           ],
           "conflicts_with_running": true,
-          "hint": "Ставит Java 17 или новее с поддержкой окон, перебирая пакеты под ваш дистрибутив. Java 11 не подходит — лаунчер на ней не стартует. Потребуется пароль администратора."
+          "hint": "Выдаёт новый ник Koder и 4 цифры и сразу выбирает его в лаунчере. Закройте лаунчер перед сменой — иначе он может вернуть старый."
         },
         {
-          "name": "Папка лаунчера (.tlauncher)",
+          "name": "Журнал лаунчера",
           "cmd": [
-            "xdg-open",
-            "~/.tlauncher"
+            "sh",
+            "-c",
+            "echo \"=== Запуски (run.sh) ===\"; tail -n 40 \"$HOME/.local/share/KoderLab/apps/legacy_launcher/launcher.log\" 2>/dev/null || echo \"  пока пусто\"; echo; echo \"=== Legacy Launcher ===\"; tail -n 60 \"$HOME/.tlauncher/logs/launcher.log\" 2>/dev/null || echo \"  пока пусто\""
           ],
           "conflicts_with_running": false,
-          "hint": "Логи и настройки TLauncher. Логи запуска — в подпапке logs."
+          "hint": "Если лаунчер не открылся или игра не запускается — причина обычно здесь."
+        },
+        {
+          "name": "Папка игры (.minecraft)",
+          "cmd": [
+            "xdg-open",
+            "~/.minecraft"
+          ],
+          "conflicts_with_running": false,
+          "hint": "Миры (saves), моды (mods), скриншоты."
         }
       ]
     },
@@ -832,7 +839,7 @@
       "number": 2,
       "name": "MineCraft — программирование и искусственный интеллект (6–10 лет)",
       "app_ids": [
-        "tlauncher",
+        "legacy_launcher",
         "scratch",
         "blockbench"
       ]
@@ -921,5 +928,5 @@
     "simple": true
   },
   "title": "ИТ ШКОЛА KoderLab - ПО",
-  "version": "1.1.4"
+  "version": "1.2.0"
 }

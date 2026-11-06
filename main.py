@@ -912,7 +912,7 @@ def _user_desktop_dir():
 
 KODERLAB_ICON = os.path.join(ICONS_DIR, "koderlab.png")
 KODERLAB_TITLE = "ИТ ШКОЛА KoderLab - ПО"
-KODERLAB_VERSION = "1.1.4"
+KODERLAB_VERSION = "1.2.0"
 
 
 def _koderlab_icon():
@@ -3027,6 +3027,54 @@ class ModInstaller(BaseInstaller):
             "версии), отдельного запуска у него нет. Запустите лаунчер Minecraft.")
 
 
+MINECRAFT_DIR = os.path.join(BASE_DIR, "minecraft")
+MINECRAFT_INSTALL_SH = os.path.join(MINECRAFT_DIR, "install.sh")
+
+
+class LegacyLauncherInstaller(BaseInstaller):
+    """KoderLab (Legacy Launcher): Minecraft 1.8.9 + Forge + модпак
+    ComputerCraftEdu RUS. Заменяет TLauncher.
+
+    Всю работу делает minecraft/install.sh (он же годится для ручного запуска
+    в терминале): Java (при нужде — переносная, в домашнюю папку), лаунчер,
+    моды, ник KoderNNNN и настройки лаунчера, ярлыки. Маркер и папки у него
+    те же, что у остальных программ (DATA_DIR/installed, DATA_DIR/apps), так
+    что «Запустить» и статус «установлено» работают через BaseInstaller.
+    Под root скрипт выполняется от имени настоящего пользователя — так
+    устроен _stream_env: лаунчер и игра под root не работают."""
+
+    def _run(self, args, line, progress, cancel):
+        if not os.path.isfile(MINECRAFT_INSTALL_SH):
+            line(f"✗ Не найден {MINECRAFT_INSTALL_SH}.", "err")
+            line("   Папка minecraft/ приходит с автообновлением: перезапустите "
+                 "программу (при наличии .update_token она докачается сама) "
+                 "или скачайте программу заново.", "warn")
+            return 1
+        env = {"KODERLAB_GUI": "1", "KODERLAB_EMBEDDED": "1",
+               "KODERLAB_INSTALLERS": INSTALLERS_DIR}
+        kinds = {"✓": "ok", "⚠": "warn", "✗": "err", "→": "run", "▸": "run"}
+
+        def colored(text, kind="info"):
+            # _stream_env отдаёт весь вывод как "info"; install.sh помечает
+            # строки значками — по ним и раскрашиваем журнал
+            if kind == "info":
+                kind = kinds.get(text.lstrip()[:1], "info")
+            line(text, kind)
+
+        return _stream_env(["bash", MINECRAFT_INSTALL_SH] + args, env,
+                           colored, progress, cancel, cwd=MINECRAFT_DIR)
+
+    def install(self, app, line, progress, cancel):
+        code = self._run([], line, progress, cancel)
+        if code == -99:
+            return "cancelled"
+        return "success" if code == 0 else "error"
+
+    def uninstall(self, app, line, progress, cancel):
+        code = self._run(["--uninstall"], line, progress, cancel)
+        return "removed" if code == 0 else "error"
+
+
 class UnsupportedInstaller(BaseInstaller):
     """Программы, у которых нет версии для Linux. Не ставим — показываем,
     что делать вместо этого (см. поле "note" в courses.json)."""
@@ -5079,6 +5127,8 @@ def get_installer(app):
         return WebInstaller()
     if t == "mod":
         return ModInstaller()
+    if t == "legacy_launcher":
+        return LegacyLauncherInstaller()
     if t in ("unsupported", "none"):
         return UnsupportedInstaller()
     # rpm / deb / appimage / archive / script — всё через локальный файл
@@ -9200,7 +9250,11 @@ UPDATE_TOKEN_FILE = os.path.join(BASE_DIR, ".update_token")
 # создаётся на месте (ярлыки, settings.json, markers) — не трогаем, это
 # не код, а данные конкретного компьютера.
 UPDATE_TRACKED = ["main.py", "courses.json", "start.sh",
-                  "build_flatpak_bundles.sh", "ЧИТАЙ.txt", "icons"]
+                  "build_flatpak_bundles.sh", "ЧИТАЙ.txt", "icons", "minecraft"]
+# Папки, без которых новая версия не работает. Если их нет — значит,
+# обновление ставила старая версия программы со старым UPDATE_TRACKED
+# (она о них не знала и не скопировала): докачиваем при запуске.
+UPDATE_REQUIRED = ["minecraft"]
 
 
 def _update_token():
@@ -9314,6 +9368,13 @@ def main():
     # ставим обязательно, до открытия окна. Нет сети/токена — работаем
     # с тем, что есть, никого не блокируем.
     has_update, new_version = check_for_update()
+    missing = [n for n in UPDATE_REQUIRED
+               if not os.path.exists(os.path.join(BASE_DIR, n))]
+    if not has_update and missing and _update_token():
+        # обновлялись старой версией — она не знала про новые папки
+        ok, err = apply_update()
+        if not ok:
+            print(f"Не удалось докачать {', '.join(missing)}: {err}", file=sys.stderr)
     if has_update:
         dlg = QProgressDialog(
             f"Доступно обновление {new_version} (сейчас {KODERLAB_VERSION}). "
